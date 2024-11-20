@@ -1,0 +1,23 @@
+```{r}
+install.packages('rsconnect')
+```
+
+```{r}
+library(rsconnect)
+```
+
+```{r}
+# Read the credentials file as a data frame
+credentials <- read.csv("credentials.csv", stringsAsFactors = FALSE)
+
+# Set the account information using the first row of the CSV
+rsconnect::setAccountInfo(
+  name = credentials$name[1], 
+  token = credentials$token[1], 
+  secret = credentials$secret[1]
+)
+```
+
+```{r}
+deployApp("./app", appName="BaseApp")
+```

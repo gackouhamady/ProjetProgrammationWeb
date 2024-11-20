@@ -1,0 +1,10 @@
+name: BaseApp
+title:
+username: bastienh
+account: bastienh
+server: shinyapps.io
+hostUrl: https://api.shinyapps.io/v1
+appId: 13400077
+bundleId: 9392280
+url: https://bastienh.shinyapps.io/BaseApp/
+version: 1
