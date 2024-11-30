@@ -21,7 +21,7 @@ ui <- dashboardPage(
         fluidRow(
           box(
             title = "Upload Dataset", status = "primary", solidHeader = TRUE, width = 4,
-            fileInput("file", "Choose Data File", accept = c(".csv", ".data")),
+            fileInput("file", "Choose Data File", accept = c(".csv", ".data", ".dat", ".xls", ".xlsx",".tsv",".json", "txt")),
             checkboxInput("header", "Header", TRUE),
             radioButtons("sep", "Separator",
                          choices = c(Comma = ",", Semicolon = ";", Tab = "\t", Space = " "),

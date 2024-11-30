@@ -8,7 +8,8 @@ library(randomForest)
 library(ROCR)
 library(pROC)
 library(shinyWidgets)
-
+library(jsonlite)
+library(xlsx)
 # Define Server Logic
 server <- function(input, output, session) {
   
@@ -19,9 +20,23 @@ server <- function(input, output, session) {
   observeEvent(input$file, {
     req(input$file)
     ext <- tools::file_ext(input$file$name)
-    if (ext == "csv" || ext == "data") {
+    if (ext == "csv" || ext == "data" || ext == "dat" || ext == "tsv" || ext == "txt") {
       df <- read.csv(input$file$datapath, header = input$header, sep = input$sep, quote = input$quote)
-    } else {
+    } 
+    else if (ext == "xls"|| ext == "xlsx"){
+      if(ext == "xls"){
+        file_path <- paste(input$file$datapath, "x", sep = "")
+        file.rename(input$file$datapath, file_path)
+      }
+      else{
+        file_path <- input$file$datapath
+      }
+      df <- as.data.frame(read.xlsx(file_path))
+    }
+    else if (ext == "json"){
+      df <- as.data.frame(fromJSON(txt=input$file$datapath))
+    }
+    else {
       showNotification("Unsupported file type", type = "error")
       return(NULL)
     }
