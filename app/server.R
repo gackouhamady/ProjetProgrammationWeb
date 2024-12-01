@@ -24,14 +24,7 @@ server <- function(input, output, session) {
       df <- read.csv(input$file$datapath, header = input$header, sep = input$sep, quote = input$quote)
     } 
     else if (ext == "xls"|| ext == "xlsx"){
-      if(ext == "xls"){
-        file_path <- paste(input$file$datapath, "x", sep = "")
-        file.rename(input$file$datapath, file_path)
-      }
-      else{
-        file_path <- input$file$datapath
-      }
-      df <- as.data.frame(read.xlsx(file_path))
+      df <- as.data.frame(read.xlsx(input$file$datapath, sheetIndex = 1))
     }
     else if (ext == "json"){
       df <- as.data.frame(fromJSON(txt=input$file$datapath))
