@@ -20,8 +20,12 @@ server <- function(input, output, session) {
   observeEvent(input$file, {
     req(input$file)
     ext <- tools::file_ext(input$file$name)
+    output$ext <- renderText(ext)
     if (ext == "csv" || ext == "data" || ext == "dat" || ext == "tsv" || ext == "txt") {
-      df <- read.csv(input$file$datapath, header = input$header, sep = input$sep, quote = input$quote)
+      if (ext == "csv"){sep <- ","}
+      else if (ext == "tsv"){sep <- "\t"}
+      else {sep <- input$sep}
+      df <- read.csv(input$file$datapath, header = input$header, sep = sep, quote = input$quote)
     } 
     else if (ext == "xls"|| ext == "xlsx"){
       df <- as.data.frame(read.xlsx(input$file$datapath, sheetIndex = 1))
