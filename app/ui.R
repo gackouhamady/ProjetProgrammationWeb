@@ -23,9 +23,13 @@ ui <- dashboardPage(
             title = "Upload Dataset", status = "primary", solidHeader = TRUE, width = 4,
             fileInput("file", "Choose Data File", accept = c(".csv", ".data", ".dat", ".xls", ".xlsx",".tsv",".json", "txt")),
             checkboxInput("header", "Header", TRUE),
-            radioButtons("sep", "Separator",
-                         choices = c(Comma = ",", Semicolon = ";", Tab = "\t", Space = " "),
-                         selected = ","),
+            
+            conditionalPanel(
+              condition = "output.ext == 'data' || output.ext == 'dat' || output.ext == 'txt'",
+              radioButtons("sep", "Separator",
+                           choices = c(Comma = ",", Semicolon = ";", Tab = "\t", Space = " "),
+                           selected = ",")
+            ),
             radioButtons("quote", "Quote",
                          choices = c(None = "", "Double Quote" = '"', "Single Quote" = "'"),
                          selected = '"')
