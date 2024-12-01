@@ -10,6 +10,7 @@ library(pROC)
 library(shinyWidgets)
 library(jsonlite)
 library(xlsx)
+library(eList)
 # Define Server Logic
 server <- function(input, output, session) {
   
@@ -51,9 +52,17 @@ server <- function(input, output, session) {
   observeEvent(input$diagnose_btn, {
     req(data())
     df <- data()
+    data_type <- sapply(df, function(x) class(x)[1])
+    Type <- c()
+    i <- 1
+    for (x in data_type){
+      if (x == "numeric") Type[i] <- "Quantitative" 
+      else Type[i] <- "Categorical"
+      i <- i + 1
+    }
     var_info <- data.frame(
       Variable = names(df),
-      Type = sapply(df, function(x) class(x)[1]),
+      Type = Type,
       MissingValues = sapply(df, function(x) sum(is.na(x))),
       UniqueValues = sapply(df, function(x) length(unique(x))),
       stringsAsFactors = FALSE
