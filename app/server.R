@@ -10,7 +10,7 @@ library(pROC)
 library(shinyWidgets)
 library(jsonlite)
 library(xlsx)
-library(eList)
+library(randomcoloR)
 # Define Server Logic
 server <- function(input, output, session) {
   
@@ -60,6 +60,9 @@ server <- function(input, output, session) {
       else Type[i] <- "Categorical"
       i <- i + 1
     }
+    
+    
+    
     var_info <- data.frame(
       Variable = names(df),
       Type = Type,
@@ -94,25 +97,53 @@ server <- function(input, output, session) {
   
   # Univariate and Bivariate Analysis
   observeEvent(input$analyze_btn, {
-    output$uni_plot <- renderPlotly({
+    output$dist <- renderPlotly({
       req(input$var1)
       df <- data()
       var <- df[[input$var1]]
       p <- if(is.numeric(var)) {
-        ggplot(df, aes_string(x = input$var1)) + geom_histogram(binwidth = diff(range(var, na.rm=TRUE))/30, fill = "blue", color = "black")
+        ggplot(df, aes_string(x = input$var1)) + geom_histogram(binwidth = diff(range(var, na.rm=TRUE))/30, fill = randomColor(), color = "black")
       } else {
-        ggplot(df, aes_string(x = input$var1)) + geom_bar(fill = "blue", color = "black")
+        ggplot(df, aes_string(x = input$var1)) + geom_bar(fill = randomColor(), color = "black")
       }
       ggplotly(p)
     })
     
-    output$uni_summary <- renderPrint({
+    output$box_plot <- renderPlotly({
+      req(input$var1)
+      df <- data()
+      var <- df[[input$var1]]
+      if(is.numeric(var)){
+        p <- ggplot(df, aes(y=var)) +
+            geom_boxplot(fill=randomColor(), color="black")+
+            theme_classic()
+        ggplotly(p)
+      }
+      
+    })
+    
+    output$uni_summary <- renderTable({
       req(input$var1)
       var <- data()[[input$var1]]
       if(is.numeric(var)) {
-        summary(var)
+        var_summary <- summary(var)
+        var_names <- names(var_summary)
+        t(data.frame(Statistics = var_names, Value = as.numeric(var_summary)))
       } else {
-        as.data.frame(table(var))
+        t(as.data.frame(table(var)))
+      }
+    })
+    
+    
+    output$outliers <- renderTable({
+      req(input$var1)
+      df <- data()
+      var <- data()[[input$var1]]
+      var_name <- input$var1
+      if(is.numeric(var)) {
+        res<-quantile(var, probs = c(0.25,0.75))
+        ecart <- res["75%"] - res["25%"]
+        subset(df, df[[var_name]] < res["25%"] - 1.5*ecart | df[[var_name]] > res["75%"] + 1.5*ecart)
       }
     })
     
@@ -123,9 +154,9 @@ server <- function(input, output, session) {
       var1 <- df[[input$var1]]
       var2 <- df[[input$var2]]
       p <- ggplot(df, aes_string(x = input$var1, y = input$var2)) +
-        {if(is.numeric(var1) && is.numeric(var2)) geom_point(color = "blue")
-         else if(is.factor(var1) && is.numeric(var2)) geom_boxplot(aes_string(group = input$var1), fill = "blue")
-         else if(is.numeric(var1) && is.factor(var2)) geom_boxplot(aes_string(group = input$var2), fill = "blue")
+        {if(is.numeric(var1) && is.numeric(var2)) geom_point(color = randomColor())
+         else if(is.factor(var1) && is.numeric(var2)) geom_boxplot(aes_string(group = input$var1), fill = randomColor())
+         else if(is.numeric(var1) && is.factor(var2)) geom_boxplot(aes_string(group = input$var2), fill = randomColor())
          else geom_jitter(aes(color = var1), width = 0.2)}
       ggplotly(p)
     })
