@@ -51,22 +51,44 @@ ui <- dashboardPage(
         ),
         fluidRow(
           box(
-            title = "Variable Selection", status = "primary", solidHeader = TRUE, width = 4,
+            title = "Variable Selection", status = "primary", solidHeader = TRUE, width = 6,
             uiOutput("var_select"),
             uiOutput("var_select_2"),
             actionButton("analyze_btn", "Analyze")
+          )),
+        fluidRow(
+            box(
+              title = "Distribution Plot", status = "primary", solidHeader = TRUE, width = 12,
+              plotlyOutput("dist")
+            )),
+        fluidRow(
+            box(
+              title = "Box Plot", status = "primary", solidHeader = TRUE, width = 6,
+              plotlyOutput("box_plot"),
+            ),
+            box(
+              
+              fluidRow(
+                box(
+                  title = "Statistics summary", status = "primary", solidHeader = TRUE, width = 12,
+                  tableOutput("uni_summary"),)
+              ),
+              fluidRow(
+                box(
+                  title = "List of outliers", status = "primary", solidHeader = TRUE, width = 12,
+                  tableOutput("outliers"),
+                )
+              )
+            )
+          
           ),
+        fluidRow(
           box(
-            title = "Univariate Analysis", status = "primary", solidHeader = TRUE, width = 4,
-            plotlyOutput("uni_plot"),
-            verbatimTextOutput("uni_summary")
-          ),
-          box(
-            title = "Bivariate Analysis", status = "primary", solidHeader = TRUE, width = 4,
+            title = "Bivariate Analysis", status = "primary", solidHeader = TRUE, width = 12,
             plotlyOutput("bi_plot"),
             verbatimTextOutput("bi_summary")
-          )
-        )
+          ))
+        
       ),
       # Model Training Tab
       tabItem(tabName = "model_training",
