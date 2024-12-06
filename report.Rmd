@@ -1,6 +1,6 @@
 # **1. Introduction**
 
-### 1.1 Objectifs du projet
+### 1.1 Objectifs du projet 
 
 -   Charger et prétraiter un jeu de données.
 -   Réaliser une analyse exploratoire des données (EDA).
@@ -9,12 +9,17 @@
 
 ### 1.2 Jeu de données utilisé
 
--   Description du dataset choisi (source, dimensions, type de données).
--   Motivation pour le choix de ce dataset.
+-   **Dataset Choisi :** Cardiotocography (CTG)
 
-------------------------------------------------------------------------
+    Il est choisi à ce titre, sur lequel, dans ce rapport, nous allons appliquer toutes les étapes de traitement de notre application. Notre application généralise et fournit des fonctionnalités applicables à tout type de jeu de données....
 
-## **2. Préparation des Données**
+    **Raison du choix :**
+
+    Cardiotocography contient des mesures de la fréquence cardiaque fœtale (FHR) et des contractions utérines (UC), un problème classique dans le domaine médical où les données temporelles et continues sont courantes. Le dataset est suffisamment complexe pour nécessiter des étapes d'exploration et de prétraitement avancées tout en étant compréhensible pour les utilisateurs, ce qui est idéal pour un projet de groupe. Ce dataset comprend également différentes variables qui nécessitent un nettoyage, comme la gestion des valeurs manquantes, des outliers et des variables catégorielles. De plus, il y a un besoin évident d’analyse unidimensionnelle et bidimensionnelle pour visualiser les relations entre les différentes variables , présente une possibilité de mesurer des performances avec des métriques comme la précision, le rappel, l'AUC et la courbe ROC, ce qui permettra d’évaluer correctement la qualité du modèle d'où l'objectif de l'application à développer ...
+
+    **Autres Raisons :** Taille du dataset : Le dataset est assez volumineux pour fournir une base solide pour l'apprentissage et la validation des modèles.
+
+    **Défis à relever :** Identification de patterns et de comportements spécifiques dans les données médicales, ce qui peut fournir une compréhension riche du problème à résoudre, avec des modèles capables de prédire des conditions critiques (par exemple, des anomalies fœtales).
 
 ### 2.1 Chargement des données
 
@@ -156,7 +161,7 @@
 # **Plan de Travail (Résumé)**
 
 | Étape | Description | Durée Estimée |
-|------------------|--------------------------------------|-----------------|
+|------------------------|------------------------|------------------------|
 | Configuration | Préparation de l’environnement | 0.5 jour |
 | Chargement/Prétraitement | Implémentation des outils de gestion des données | 2 jours |
 | Analyse Exploratoire | Visualisations et métriques | 3 jours |
