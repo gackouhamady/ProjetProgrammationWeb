@@ -3,6 +3,7 @@ library(shinydashboard)
 library(shinyWidgets)
 library(plotly)
 library(DT)
+library(rmarkdown)
 
 # Define UI
 ui <- dashboardPage(
@@ -10,7 +11,7 @@ ui <- dashboardPage(
   dashboardSidebar(
     sidebarMenu( 
       
-      menuItem("Project Report", tabName = "project_report", icon = icon("file-alt")), 
+      menuItem("Report", tabName = "project_report", icon = icon("file-alt")), 
       menuItem("Data Upload", tabName = "data_upload", icon = icon("upload")),
       menuItem("Data Exploration", tabName = "data_exploration", icon = icon("chart-bar")),
       menuItem("Model Training", tabName = "model_training", icon = icon("cogs"))
@@ -19,15 +20,9 @@ ui <- dashboardPage(
   dashboardBody(
     tabItems(
       tabItem(tabName = "project_report",
-              fluidRow(
+             fluidRow(
                 box(
-                  title = "Generate Project Report", status = "primary", solidHeader = TRUE, width = 12,
-                  downloadButton("download_report", "Download Report")
-                )
-              ),
-              fluidRow(
-                box(
-                  title = "Report Preview", status = "primary", solidHeader = TRUE, width = 12,
+                  title = "Analyse Statistique et Simulation des Comportements de Application : Cas étudié: Cardiotocography ", status = "primary", solidHeader = TRUE, width = 12,
                   htmlOutput("report_preview") # Dynamic preview of the markdown report
                 )
               )

@@ -11,8 +11,34 @@ library(shinyWidgets)
 library(jsonlite)
 library(xlsx)
 library(randomcoloR)
+library(rmarkdown)
+
+
 # Define Server Logic
 server <- function(input, output, session) {
+  
+  report_content <- reactive({
+    report_file <- "./../report.Rmd"
+    
+    if (file.exists(report_file)) { 
+      html_report <- rmarkdown::render(report_file, output_format = "html_document", quiet = TRUE)
+      return(html_report)  
+    } else {
+      return("Le fichier rapport.Rmd est introuvable.")
+    }
+  })
+  
+  output$report_preview <- renderUI({
+    report_file <- report_content()
+    req(report_file)   
+    
+    if (file.exists(report_file)) {
+      HTML(readLines(report_file))
+    } else {
+      "Erreur dans le rendu du fichier."
+    }
+  })
+  
   
   # Reactive value to store the dataset
   data <- reactiveVal(NULL)
