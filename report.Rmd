@@ -1,0 +1,168 @@
+# **1. Introduction**
+
+### 1.1 Objectifs du projet
+
+-   Charger et prétraiter un jeu de données.
+-   Réaliser une analyse exploratoire des données (EDA).
+-   Construire et évaluer des modèles de classification supervisés.
+-   Identifier les caractéristiques les plus importantes.
+
+### 1.2 Jeu de données utilisé
+
+-   Description du dataset choisi (source, dimensions, type de données).
+-   Motivation pour le choix de ce dataset.
+
+------------------------------------------------------------------------
+
+## **2. Préparation des Données**
+
+### 2.1 Chargement des données
+
+-   Méthodologie pour charger tout type de données (CSV, Excel, etc.).
+-   Aperçu initial des données.
+
+### 2.2 Prétraitement des données
+
+-   Identification des types de variables (qualitatives, quantitatives).
+-   Gestion des valeurs manquantes.
+-   Détection et gestion des outliers.
+-   Normalisation des variables quantitatives.
+-   Dummification des variables qualitatives.
+-   Gestion du déséquilibre des classes (oversampling/undersampling).
+
+------------------------------------------------------------------------
+
+## **3. Analyse Exploratoire des Données (EDA)**
+
+### 3.1 Analyse unidimensionnelle
+
+-   Visualisations pour chaque variable (histogrammes, boxplots, barplots).
+-   Statistiques descriptives clés (moyenne, médiane, mode, écart-type, etc.).
+
+### 3.2 Analyse bidimensionnelle
+
+-   Visualisations pour une paire de variables (scatter plots, heatmaps, etc.).
+-   Métriques de relation entre deux variables (correlation, tests statistiques).
+
+### 3.3 Insights issus de l'EDA
+
+-   Points clés observés dans les données.
+-   Hypothèses potentielles pour les modèles.
+
+------------------------------------------------------------------------
+
+## **4. Modélisation**
+
+### 4.1 Sélection des modèles
+
+-   Présentation des modèles choisis (exemple : Logistic Regression, Random Forest).
+-   Justification du choix des modèles.
+
+### 4.2 Entraînement des modèles
+
+-   Méthodologie d’entraînement (validation croisée, split train/test).
+-   Métriques utilisées pour évaluer la performance (Precision, Recall, F-Score, ROC, AUC).
+
+### 4.3 Résultats et Comparaison des modèles
+
+-   Tableau comparatif des performances des modèles.
+-   Graphiques ROC pour les différents modèles.
+
+### 4.4 Identification des caractéristiques importantes
+
+-   Méthode utilisée pour l’identification (feature importance, SHAP values, etc.).
+-   Résultats obtenus.
+
+------------------------------------------------------------------------
+
+## **5. Conclusion**
+
+### 5.1 Résumé des résultats
+
+-   Résumé des principales observations.
+-   Performances des modèles.
+
+### 5.2 Perspectives
+
+-   Limites de l’étude.
+-   Suggestions d’améliorations.
+
+### 5.3 Application potentielle des résultats
+
+-   Cas d’usage dans un domaine réel.
+
+------------------------------------------------------------------------
+
+# **Roadmap pour le Développement**
+
+### **Étape 1 : Configuration de l’Environnement**
+
+-   **Temps estimé** : 0.5 jour
+    -   Préparer l'environnement de développement R Shiny.
+    -   Installer les packages nécessaires (`shiny`, `ggplot2`, `caret`, `randomForest`, etc.).
+
+### **Étape 2 : Chargement et Prétraitement des Données**
+
+-   **Temps estimé** : 2 jours
+    -   Implémenter une interface pour charger tout type de données.
+    -   Développer les fonctionnalités de :
+        -   Détection des types de variables.
+        -   Gestion des valeurs manquantes.
+        -   Détection et traitement des outliers.
+        -   Normalisation des variables quantitatives.
+        -   Dummification des variables qualitatives.
+        -   Équilibrage des classes.
+
+### **Étape 3 : Analyse Exploratoire des Données (EDA)**
+
+-   **Temps estimé** : 3 jours
+    -   Ajouter un onglet "EDA" à l’interface.
+    -   Implémenter :
+        -   Analyse unidimensionnelle avec visualisations.
+        -   Analyse bidimensionnelle avec visualisations et métriques.
+        -   Résumé des statistiques descriptives.
+
+### **Étape 4 : Modélisation**
+
+-   **Temps estimé** : 3 jours
+    -   Ajouter un onglet "Modélisation".
+    -   Implémenter les fonctionnalités :
+        -   Sélection du modèle (Logistic Regression, Random Forest).
+        -   Entraînement des modèles avec validation croisée.
+        -   Évaluation comparative (Precision, Recall, F-Score, ROC, AUC).
+        -   Affichage des graphiques ROC.
+
+### **Étape 5 : Identification des Features Importants**
+
+-   **Temps estimé** : 1 jour
+    -   Ajouter une méthode pour identifier les features importants.
+    -   Implémenter un affichage graphique pour ces résultats.
+
+### **Étape 6 : Optimisation et Tests**
+
+-   **Temps estimé** : 2 jours
+    -   Tester toutes les fonctionnalités.
+    -   Résoudre les bugs.
+    -   Améliorer l'interface utilisateur (UI).
+
+### **Étape 7 : Finalisation et Rapport**
+
+-   **Temps estimé** : 1 jour
+    -   Finaliser l’application Shiny.
+    -   Rédiger le rapport Markdown complet avec les résultats de l’étude.
+
+------------------------------------------------------------------------
+
+# **Plan de Travail (Résumé)**
+
+| Étape | Description | Durée Estimée |
+|------------------|--------------------------------------|-----------------|
+| Configuration | Préparation de l’environnement | 0.5 jour |
+| Chargement/Prétraitement | Implémentation des outils de gestion des données | 2 jours |
+| Analyse Exploratoire | Visualisations et métriques | 3 jours |
+| Modélisation | Entraînement et évaluation des modèles | 3 jours |
+| Features Importants | Identification des caractéristiques clés | 1 jour |
+| Tests/Optimisation | Debugging et optimisation de l'interface | 2 jours |
+| Rapport Final | Rédaction et finalisation | 1 jour |
+
+Temps total estimé : **12.5 jours**
