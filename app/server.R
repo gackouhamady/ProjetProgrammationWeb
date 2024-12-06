@@ -115,8 +115,8 @@ server <- function(input, output, session) {
       var <- df[[input$var1]]
       if(is.numeric(var)){
         p <- ggplot(df, aes(y=var)) +
-            geom_boxplot(fill=randomColor(), color="black")+
-            theme_classic()
+          geom_boxplot(fill=randomColor(), color="black")+
+          theme_classic()
         ggplotly(p)
       }
       
@@ -155,9 +155,9 @@ server <- function(input, output, session) {
       var2 <- df[[input$var2]]
       p <- ggplot(df, aes_string(x = input$var1, y = input$var2)) +
         {if(is.numeric(var1) && is.numeric(var2)) geom_point(color = randomColor())
-         else if(is.factor(var1) && is.numeric(var2)) geom_boxplot(aes_string(group = input$var1), fill = randomColor())
-         else if(is.numeric(var1) && is.factor(var2)) geom_boxplot(aes_string(group = input$var2), fill = randomColor())
-         else geom_jitter(aes(color = var1), width = 0.2)}
+          else if(is.factor(var1) && is.numeric(var2)) geom_boxplot(aes_string(group = input$var1), fill = randomColor())
+          else if(is.numeric(var1) && is.factor(var2)) geom_boxplot(aes_string(group = input$var2), fill = randomColor())
+          else geom_jitter(aes(color = var1), width = 0.2)}
       ggplotly(p)
     })
     
