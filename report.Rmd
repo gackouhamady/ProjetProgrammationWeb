@@ -1,6 +1,6 @@
 # **1. Introduction**
 
-### 1.1 Objectifs du projet 
+### 1.1 Objectifs du projet
 
 -   Charger et prétraiter un jeu de données.
 -   Réaliser une analyse exploratoire des données (EDA).
@@ -9,30 +9,210 @@
 
 ### 1.2 Jeu de données utilisé
 
--   **Dataset Choisi :** Cardiotocography (CTG)
+-   **Dataset Choisi :** [Healthcare Dataset](https://www.kaggle.com/datasets/prasad22/healthcare-dataset)
 
     Il est choisi à ce titre, sur lequel, dans ce rapport, nous allons appliquer toutes les étapes de traitement de notre application. Notre application généralise et fournit des fonctionnalités applicables à tout type de jeu de données....
 
+    # **`Inspiration:`**
+
+    L'inspiration derrière cet ensemble de données est ancrée dans le besoin de données de santé pratiques et diversifiées à des fins éducatives et de recherche. Les données de santé sont souvent sensibles et soumises à des réglementations en matière de confidentialité, ce qui rend difficile l'accès à des fins d'apprentissage et d'expérimentation. Pour combler cette lacune, Nous avons exploité la bibliothèque dplyr de R pour générer un ensemble de données qui reflète la structure et les attributs généralement trouvés dans les dossiers médicaux. Le jeu de données généré contient des variables comme l'âge, le sexe, les informations médicales et hospitalières des patients, et il inclut des aspects réalistes comme les valeurs manquantes, les outliers et un déséquilibre des classes. Ce dataset peut être utilisé pour l'analyse exploratoire, l'entraînement de modèles, et l'évaluation des performances de classification supervisée dans un contexte médical.
+
+    # **`Dataset Information:`**
+
+    Chaque colonne fournit des informations spécifiques sur le patient, son admission et les services de santé fournis, ce qui rend cet ensemble de données adapté à diverses tâches d'analyse et de modélisation de données dans le domaine de la santé. Voici une brève explication de chaque colonne de l'ensemble de données :
+
+    -   **Nom :** Cette colonne représente le nom du patient associé au dossier médical.
+
+    -   **Âge :** Âge du patient au moment de l’admission, exprimé en années.
+
+    -   **Sexe :** indique le sexe du patient, soit « Homme » soit « Femme ».
+
+    -   **Groupe sanguin :** Le groupe sanguin du patient, qui peut être l'un des groupes sanguins courants (par exemple, « A+ », « O- », etc.).
+
+    -   **État médical :** cette colonne précise l'état médical principal ou le diagnostic associé au patient, tel que « Diabète », « Hypertension », « Asthme », etc.
+
+    -   **Date d'admission :** Date à laquelle le patient a été admis à l'établissement de santé.
+
+    -   **Médecin :** Le nom du médecin responsable des soins du patient lors de son admission.
+
+    -   **Hôpital :** Identifie l’établissement de santé ou l’hôpital où le patient a été admis.
+
+    -   **Fournisseur d'assurance :** cette colonne indique le fournisseur d'assurance du patient, qui peut être l'une des nombreuses options, notamment « Aetna », « Blue Cross », « Cigna », « UnitedHealthcare » et « Medicare ».
+
+    -   **Montant facturé :** montant facturé pour les services de santé du patient lors de son admission. Il est exprimé sous forme de nombre à virgule flottante.
+
+    -   **Numéro de chambre :** Le numéro de la chambre où le patient a été hébergé lors de son admission.
+
+    -   **Type d'admission :** Spécifie le type d'admission, qui peut être « Urgence », « Électif » ou « Urgent », reflétant les circonstances de l'admission.
+
+    -   **Date de sortie :** Date à laquelle le patient est sorti de l'établissement de santé, en fonction de la date d'admission et d'un nombre aléatoire de jours dans une plage réaliste.
+
+    -   **Médicament :** désigne un médicament prescrit ou administré au patient lors de son admission. Exemples : « aspirine », « ibuprofène », « pénicilline », « paracétamol » et « lipitor ».
+
+    -   **Résultats des tests :** décrit les résultats d'un test médical effectué lors de l'admission du patient. Les valeurs possibles sont « Normal », « Anormal » ou « Non concluant », indiquant le résultat du test.
+
+    # **`NB:`**
+
+    -   Nous reconnons l'importance de la confidentialité et de la sécurité des données de santé et nous soulignons que cet ensemble de données est entièrement synthétique. Il ne contient aucune information réelle sur les patients et ne viole aucune réglementation en matière de confidentialité(source Kaggle).
+
     **Raison du choix :**
 
-    Cardiotocography contient des mesures de la fréquence cardiaque fœtale (FHR) et des contractions utérines (UC), un problème classique dans le domaine médical où les données temporelles et continues sont courantes. Le dataset est suffisamment complexe pour nécessiter des étapes d'exploration et de prétraitement avancées tout en étant compréhensible pour les utilisateurs, ce qui est idéal pour un projet de groupe. Ce dataset comprend également différentes variables qui nécessitent un nettoyage, comme la gestion des valeurs manquantes, des outliers et des variables catégorielles. De plus, il y a un besoin évident d’analyse unidimensionnelle et bidimensionnelle pour visualiser les relations entre les différentes variables , présente une possibilité de mesurer des performances avec des métriques comme la précision, le rappel, l'AUC et la courbe ROC, ce qui permettra d’évaluer correctement la qualité du modèle d'où l'objectif de l'application à développer ...
+    Cet ensemble de données synthétiques sur les soins de santé a été créé pour servir de ressource précieuse aux passionnés de science des données, d'apprentissage automatique et d'analyse de données. Il est conçu pour imiter les données de santé du monde réel, permettant aux utilisateurs de pratiquer, de développer et de mettre en valeur leurs compétences en matière de manipulation et d'analyse de données dans le contexte du secteur de la santé. Le dataset est suffisamment complexe pour nécessiter des étapes d'exploration et de prétraitement avancées tout en étant compréhensible pour les utilisateurs, ce qui est idéal pour un projet de groupe. Ce dataset comprend également différentes variables qui nécessitent un nettoyage, comme la gestion des valeurs manquantes, des outliers et des variables catégorielles. De plus, il y a un besoin évident d’analyse unidimensionnelle et bidimensionnelle pour visualiser les relations entre les différentes variables , le dataset présente une possibilité de mesurer des performances avec des métriques comme la précision, le rappel, l'AUC et la courbe ROC, ce qui permettra d’évaluer correctement la qualité du modèle d'où l'objectif de l'application à développer ...
 
     **Autres Raisons :** Taille du dataset : Le dataset est assez volumineux pour fournir une base solide pour l'apprentissage et la validation des modèles.
 
-    **Défis à relever :** Identification de patterns et de comportements spécifiques dans les données médicales, ce qui peut fournir une compréhension riche du problème à résoudre, avec des modèles capables de prédire des conditions critiques (par exemple, des anomalies fœtales).
+    **Défis à relever :** Identification de patterns et de comportements spécifiques dans les données, ce qui peut fournir une compréhension riche du problème à résoudre, avec des modèles capables de prédire des conditions critiques.
 
-### 2.1 Chargement des données
+### 2.1 Génération des données synthétiques avec les caractéristiques attendues 
 
--   Méthodologie pour charger tout type de données (CSV, Excel, etc.).
--   Aperçu initial des données.
+```{r}
+# Chargement des bibliothèques nécessaires
+set.seed(123)  # Pour la reproductibilité
+library(dplyr)
+
+# Liste des valeurs possibles pour certaines colonnes
+genders <- c("Homme", "Femme")
+blood_types <- c("A+", "A-", "B+", "B-", "O+", "O-", "AB+", "AB-")
+medical_conditions <- c("Diabète", "Hypertension", "Asthme", "Cancer", "Maladies cardiaques", "Anémie")
+doctors <- c("Dr. Smith", "Dr. Johnson", "Dr. Williams", "Dr. Brown", "Dr. Jones")
+hospitals <- c("Hôpital A", "Hôpital B", "Hôpital C", "Hôpital D")
+insurance_providers <- c("Aetna", "Blue Cross", "Cigna", "UnitedHealthcare", "Medicare")
+medications <- c("Aspirine", "Ibuprofène", "Pénicilline", "Paracétamol", "Lipitor")
+test_results <- c("Normal", "Anormal", "Non concluant")
+
+# Fonction pour générer les données synthétiques
+generate_data <- function(num_records) {
+  data <- data.frame(
+    Nom = replicate(num_records, paste0(sample(letters, 10, replace = TRUE), collapse = "")),
+    Âge = sample(13:89, num_records, replace = TRUE),
+    Sexe = sample(genders, num_records, replace = TRUE),
+    Groupe_sanguin = sample(blood_types, num_records, replace = TRUE),
+    État_médical = sample(medical_conditions, num_records, replace = TRUE),
+    Date_d_admission = sample(seq(as.Date("2010-01-01"), as.Date("2024-01-01"), by="day"), num_records, replace = TRUE),
+    Médecin = sample(doctors, num_records, replace = TRUE),
+    Hôpital = sample(hospitals, num_records, replace = TRUE),
+    Fournisseur_d_assurance = sample(insurance_providers, num_records, replace = TRUE),
+    Montant_facturé = round(runif(num_records, min = 1000, max = 50000), 2),
+    Numéro_de_chambre = sample(101:500, num_records, replace = TRUE),
+    Type_d_admission = sample(c("Urgence", "Électif", "Urgent"), num_records, replace = TRUE),
+    Date_de_sortie = sample(seq(as.Date("2010-01-01"), as.Date("2024-01-01"), by="day"), num_records, replace = TRUE),
+    Médicament = sample(medications, num_records, replace = TRUE),
+    Résultats_des_tests = sample(test_results, num_records, replace = TRUE)
+  )
+  
+  return(data)
+}
+
+# Générer 50 000 lignes de données
+num_records <- 50000
+df <- generate_data(num_records)
+
+# Introduction de valeurs manquantes de manière aléatoire dans certaines colonnes
+set_missing_values <- function(df, missing_rate = 0.05) {
+  num_rows <- nrow(df)
+  num_missing <- floor(num_rows * missing_rate)
+  
+  # Colonnes où les valeurs peuvent être manquantes
+  cols_with_missing <- c("État_médical", "Date_d_admission", "Numéro_de_chambre", "Montant_facturé")
+  
+  for (col in cols_with_missing) {
+    missing_indices <- sample(1:num_rows, num_missing)
+    df[missing_indices, col] <- NA
+  }
+  
+  return(df)
+}
+
+df <- set_missing_values(df, missing_rate = 0.05)
+
+# Introduction d'outliers dans la colonne 'Montant_facturé'
+introduce_outliers <- function(df, outlier_rate = 0.02) {
+  num_rows <- nrow(df)
+  num_outliers <- floor(num_rows * outlier_rate)
+  
+  # Sélection de quelques indices pour les outliers
+  outlier_indices <- sample(1:num_rows, num_outliers)
+  df$Montant_facturé[outlier_indices] <- df$Montant_facturé[outlier_indices] * 10  # Valeurs aberrantes
+  return(df)
+}
+
+df <- introduce_outliers(df, outlier_rate = 0.02)
+
+# Déséquilibre des classes dans la colonne 'État_médical'
+introduce_class_imbalance <- function(df) {
+  state_imbalance <- c("Diabète" = 0.5, "Hypertension" = 0.3, "Asthme" = 0.1, "Cancer" = 0.05, "Maladies cardiaques" = 0.05)
+  df$État_médical <- sample(names(state_imbalance), nrow(df), replace = TRUE, prob = state_imbalance)
+  return(df)
+}
+
+df <- introduce_class_imbalance(df)
+
+# Sauvegarde du jeu de données en CSV
+write.csv(df, "synthetic_healthcare_data_50000.csv", row.names = FALSE)
+
+# Afficher un résumé du dataset
+summary(df)
+
+```
+
+On remarque ci-dessus que le jeu de données présente de nombreuses incohérences, indiquant qu'il nécessite un traitement rigoureux. Dans les sections suivantes, nous entreprendrons un processus méthodique de nettoyage et de préparation des données afin d'obtenir un jeu de données propre et prêt pour nos futurs problèmes de classification.
 
 ### 2.2 Prétraitement des données
 
 -   Identification des types de variables (qualitatives, quantitatives).
+
+    ```{# Charger les bibliothèques nécessaires}
+    library(dplyr)
+
+    # Exemple de votre jeu de données (utilisez votre propre dataframe)
+    # df <- votre_dataframe
+
+    # Fonction pour identifier les types de variables
+    identify_variable_types <- function(df) {
+      variable_summary <- data.frame(
+        Variable = names(df),
+        Type = sapply(df, class),
+        Description = ifelse(sapply(df, class) %in% c("factor", "character"), 
+                             "Qualitative (Categorical)", 
+                             "Quantitative (Numerical)")
+      )
+      
+      # Classer les variables en qualitatives et quantitatives
+      qualitative_vars <- variable_summary[variable_summary$Description == "Qualitative (Categorical)", ]
+      quantitative_vars <- variable_summary[variable_summary$Description == "Quantitative (Numerical)", ]
+      
+      # Affichage des résultats
+      cat("\nRésumé des Variables :\n")
+      cat("\n=========================================\n")
+      
+      cat("\nVariables Qualitatives (Catégorielles) :\n")
+      print(qualitative_vars)
+      
+      cat("\n=========================================\n")
+      
+      cat("\nVariables Quantitatives (Numériques) :\n")
+      print(quantitative_vars)
+      
+      # Retourner la liste complète pour consultation
+      return(variable_summary)
+    }
+
+    # Appliquer la fonction à votre dataframe
+    result <- identify_variable_types(df)
+
+    # Résultat détaillé
+    cat("\nRésumé complet des types de variables:\n")
+    print(result)
+    ```
+
 -   Gestion des valeurs manquantes.
+
 -   Détection et gestion des outliers.
+
 -   Normalisation des variables quantitatives.
+
 -   Dummification des variables qualitatives.
+
 -   Gestion du déséquilibre des classes (oversampling/undersampling).
 
 ------------------------------------------------------------------------
