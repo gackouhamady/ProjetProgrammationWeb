@@ -22,7 +22,7 @@ ui <- dashboardPage(
       tabItem(tabName = "project_report",
              fluidRow(
                 box(
-                  title = "Analyse Statistique et Simulation des Comportements de Application : Cas étudié: Cardiotocography ", status = "primary", solidHeader = TRUE, width = 12,
+                  title = "Analyse Statistique : Etude de cas : Données de soins de Santé ", status = "primary", solidHeader = TRUE, width = 12,
                   htmlOutput("report_preview") # Dynamic preview of the markdown report
                 )
               )

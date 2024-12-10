@@ -1,4 +1,4 @@
-# **1. Introduction**
+#  **1. Introduction**
 
 ### 1.1 Objectifs du projet
 
@@ -63,12 +63,12 @@
 
     **Défis à relever :** Identification de patterns et de comportements spécifiques dans les données, ce qui peut fournir une compréhension riche du problème à résoudre, avec des modèles capables de prédire des conditions critiques.
 
-### 2.1 Génération des données synthétiques avec les caractéristiques attendues 
+### 2.1 Génération des données synthétiques avec les caractéristiques attendues
 
-```{r}
+```{r echo=FALSE,include=FALSE, fig.cap="Code source affiché comme une figure", fig.width=7, fig.height=5, message=FALSE, warning=FALSE, results='markup', highlight=TRUE}
 # Chargement des bibliothèques nécessaires
-set.seed(123)  # Pour la reproductibilité
-library(dplyr)
+set.seed(120)  # Pour la reproductibilité
+suppressPackageStartupMessages(library(dplyr))
 
 # Liste des valeurs possibles pour certaines colonnes
 genders <- c("Homme", "Femme")
@@ -140,70 +140,145 @@ df <- introduce_outliers(df, outlier_rate = 0.02)
 
 # Déséquilibre des classes dans la colonne 'État_médical'
 introduce_class_imbalance <- function(df) {
-  state_imbalance <- c("Diabète" = 0.5, "Hypertension" = 0.3, "Asthme" = 0.1, "Cancer" = 0.05, "Maladies cardiaques" = 0.05)
-  df$État_médical <- sample(names(state_imbalance), nrow(df), replace = TRUE, prob = state_imbalance)
+  state_imbalance <- c("Normal" = 0.7, "Anormal" = 0.2, "Non concluant" = 0.1)
+  df$Résultats_des_tests <- sample(names(state_imbalance), nrow(df), replace = TRUE, prob = state_imbalance)
   return(df)
 }
 
 df <- introduce_class_imbalance(df)
 
-# Sauvegarde du jeu de données en CSV
-write.csv(df, "synthetic_healthcare_data_50000.csv", row.names = FALSE)
+# Sélection d'une partie de l'échantillon pour l'analyse dans le R Markdown
+df <- df[1:1000, ] 
 
 # Afficher un résumé du dataset
 summary(df)
 
 ```
 
-On remarque ci-dessus que le jeu de données présente de nombreuses incohérences, indiquant qu'il nécessite un traitement rigoureux. Dans les sections suivantes, nous entreprendrons un processus méthodique de nettoyage et de préparation des données afin d'obtenir un jeu de données propre et prêt pour nos futurs problèmes de classification.
+### Code source
+
+```{r echo=FALSE}
+
+suppressPackageStartupMessages(library(knitr))
+suppressPackageStartupMessages(library(kableExtra))
+
+
+code_source <- "
+set.seed(120)
+library(dplyr)
+
+genders <- c('Homme', 'Femme')
+blood_types <- c('A+', 'A-', 'B+', 'B-', 'O+', 'O-', 'AB+', 'AB-')
+medical_conditions <- c('Diabète', 'Hypertension', 'Asthme', 'Cancer', 'Maladies cardiaques', 'Anémie')
+doctors <- c('Dr. Smith', 'Dr. Johnson', 'Dr. Williams', 'Dr. Brown', 'Dr. Jones')
+hospitals <- c('Hôpital A', 'Hôpital B', 'Hôpital C', 'Hôpital D')
+insurance_providers <- c('Aetna', 'Blue Cross', 'Cigna', 'UnitedHealthcare', 'Medicare')
+medications <- c('Aspirine', 'Ibuprofène', 'Pénicilline', 'Paracétamol', 'Lipitor')
+test_results <- c('Normal', 'Anormal', 'Non concluant')
+
+generate_data <- function(num_records) {
+  data <- data.frame(
+    Nom = replicate(num_records, paste0(sample(letters, 10, replace = TRUE), collapse = '')),
+    Âge = sample(13:89, num_records, replace = TRUE),
+    Sexe = sample(genders, num_records, replace = TRUE),
+    Groupe_sanguin = sample(blood_types, num_records, replace = TRUE),
+    État_médical = sample(medical_conditions, num_records, replace = TRUE),
+    Date_d_admission = sample(seq(as.Date('2010-01-01'), as.Date('2024-01-01'), by='day'), num_records, replace = TRUE),
+    Médecin = sample(doctors, num_records, replace = TRUE),
+    Hôpital = sample(hospitals, num_records, replace = TRUE),
+    Fournisseur_d_assurance = sample(insurance_providers, num_records, replace = TRUE),
+    Montant_facturé = round(runif(num_records, min = 1000, max = 50000), 2),
+    Numéro_de_chambre = sample(101:500, num_records, replace = TRUE),
+    Type_d_admission = sample(c('Urgence', 'Électif', 'Urgent'), num_records, replace = TRUE),
+    Date_de_sortie = sample(seq(as.Date('2010-01-01'), as.Date('2024-01-01'), by='day'), num_records, replace = TRUE),
+    Médicament = sample(medications, num_records, replace = TRUE),
+    Résultats_des_tests = sample(test_results, num_records, replace = TRUE)
+  )
+  return(data)
+}
+
+num_records <- 50000
+df <- generate_data(num_records)
+
+set_missing_values <- function(df, missing_rate = 0.05) {
+  num_rows <- nrow(df)
+  num_missing <- floor(num_rows * missing_rate)
+  cols_with_missing <- c('État_médical', 'Date_d_admission', 'Numéro_de_chambre', 'Montant_facture')
+  
+  for (col in cols_with_missing) {
+    missing_indices <- sample(1:num_rows, num_missing)
+    df[missing_indices, col] <- NA
+  }
+  return(df)
+}
+
+df <- set_missing_values(df, missing_rate = 0.05)
+
+introduce_outliers <- function(df, outlier_rate = 0.02) {
+  num_rows <- nrow(df)
+  num_outliers <- floor(num_rows * outlier_rate)
+  outlier_indices <- sample(1:num_rows, num_outliers)
+  
+  df.Montant_facture[outlier_indices] <- df.Montant_facture[outlier_indices] * 10
+  
+  return(df)
+}
+
+df <- introduce_outliers(df, outlier_rate = 0.02)
+
+introduce_class_imbalance <- function(df) {
+  state_imbalance <- c(Normal = 0.7,Anormal = 0.2, Non concluant= 0.1)
+  df$Résultats_des_tests <- sample(names(state_imbalance), nrow(df), replace = TRUE, prob = state_imbalance)
+  return(df)
+}
+
+df <- introduce_class_imbalance(df)
+
+df <- df[1:1000, ]
+summary(df)
+"
+
+kable(data.frame(Code_source = strsplit(code_source, "\n")[[1]]), "html", escape = FALSE) %>%
+  kable_styling(bootstrap_options = c("striped", "hover"), full_width = FALSE, position = "left") %>%
+  column_spec(1, width = "100em", extra_css = "font-size: 8px; text-align: left;") %>%
+  row_spec(0, extra_css = "font-size: 8px; background-color: #f9f9f9;") %>%
+  kable_styling(html_font = "monospace") %>%
+  scroll_box(height = "20%", width = "100%")
+```
+
+### Head et Summary (dataframe)
+
+```{r echo=FALSE}
+
+head_ <- head(df)
+
+summary_table <- summary(df)
+
+kable(head_, format = "html", escape = FALSE) %>%
+  kable_styling(bootstrap_options = c("striped", "hover"), full_width = FALSE, position = "left") %>%
+  column_spec(1, width = "5em", extra_css = "font-size: 8px;") %>%
+  column_spec(2, width = "5em", extra_css = "font-size: 8px;") %>%
+  row_spec(0, font_size = 8) %>%
+  kable_styling(html_font = "monospace") %>%
+  scroll_box(height = "50%", width = "100%")
+
+
+
+kable(summary_table, format = "html", escape = FALSE) %>%
+  kable_styling(bootstrap_options = c("striped", "hover"), full_width = FALSE, position = "left") %>%
+  column_spec(1, width = "5em", extra_css = "font-size: 8px;") %>%
+  column_spec(2, width = "5em", extra_css = "font-size: 8px;") %>%
+  row_spec(0, font_size = 8) %>%
+  kable_styling(html_font = "monospace") %>%
+  scroll_box(height = "50%", width = "100%")
+
+```
+
+On remarque ci-dessus dans la table summary que le jeu de données présente de nombreuses incohérences, indiquant qu'il nécessite un traitement rigoureux. Dans les sections suivantes, nous entreprendrons un processus méthodique de nettoyage et de préparation des données afin d'obtenir un jeu de données propre et prêt pour nos futurs problèmes de classification.
 
 ### 2.2 Prétraitement des données
 
 -   Identification des types de variables (qualitatives, quantitatives).
-
-    ```{# Charger les bibliothèques nécessaires}
-    library(dplyr)
-
-    # Exemple de votre jeu de données (utilisez votre propre dataframe)
-    # df <- votre_dataframe
-
-    # Fonction pour identifier les types de variables
-    identify_variable_types <- function(df) {
-      variable_summary <- data.frame(
-        Variable = names(df),
-        Type = sapply(df, class),
-        Description = ifelse(sapply(df, class) %in% c("factor", "character"), 
-                             "Qualitative (Categorical)", 
-                             "Quantitative (Numerical)")
-      )
-      
-      # Classer les variables en qualitatives et quantitatives
-      qualitative_vars <- variable_summary[variable_summary$Description == "Qualitative (Categorical)", ]
-      quantitative_vars <- variable_summary[variable_summary$Description == "Quantitative (Numerical)", ]
-      
-      # Affichage des résultats
-      cat("\nRésumé des Variables :\n")
-      cat("\n=========================================\n")
-      
-      cat("\nVariables Qualitatives (Catégorielles) :\n")
-      print(qualitative_vars)
-      
-      cat("\n=========================================\n")
-      
-      cat("\nVariables Quantitatives (Numériques) :\n")
-      print(quantitative_vars)
-      
-      # Retourner la liste complète pour consultation
-      return(variable_summary)
-    }
-
-    # Appliquer la fonction à votre dataframe
-    result <- identify_variable_types(df)
-
-    # Résultat détaillé
-    cat("\nRésumé complet des types de variables:\n")
-    print(result)
-    ```
 
 -   Gestion des valeurs manquantes.
 
@@ -215,7 +290,334 @@ On remarque ci-dessus que le jeu de données présente de nombreuses incohérenc
 
 -   Gestion du déséquilibre des classes (oversampling/undersampling).
 
-------------------------------------------------------------------------
+    ### Code Source
+
+    ```{r echo=FALSE, include=FALSE}
+    library(R6)
+    library(caret)
+    library(ggplot2)
+    library(dplyr)
+
+    Preprocessing <- R6Class("Preprocessing",
+      public = list(
+        df = NULL,
+        
+        initialize = function(data) {
+          if (!is.data.frame(data)) {
+            stop("L'entrée doit être un dataframe.")
+          }
+          self$df <- data
+        },
+        
+    identify_and_transform_variable_types = function() {
+      self$df <- as.data.frame(self$df)
+      
+      self$df <- self$df %>%
+        mutate(across(everything(), ~ {
+          if (is.character(.) && length(unique(.)) < 4) {
+            as.factor(.)  # Transforme en facteur pour les variables avec moins de 4 modalités
+          } else if (is.character(.) && length(unique(.)) >= 4) {
+            .  # Laisse inchangée si plus de 4 modalités
+          } else {
+            .  # Ne modifie pas les variables numériques
+          }
+        }))
+      
+      message("After transformation:")
+      print(head(self$df))
+    },
+
+        
+        handle_missing_values = function() {
+          self$df[] <- lapply(self$df, function(x) {
+            if (is.numeric(x)) {
+              x[is.na(x)] <- mean(x, na.rm = TRUE)
+            } else if (is.factor(x) || is.character(x)) {
+              if (is.factor(x)) {
+                levels(x) <- c(levels(x), "Unknown")
+              }
+              x[is.na(x)] <- "Unknown"
+            }
+            return(x)
+          })
+          message("After handling missing values:")
+          print(head(self$df))
+        },
+        
+        remove_outliers = function() {
+          self$df[] <- lapply(self$df, function(x) {
+            if (is.numeric(x)) {
+              Q1 <- quantile(x, 0.25, na.rm = TRUE)
+              Q3 <- quantile(x, 0.75, na.rm = TRUE)
+              IQR <- Q3 - Q1
+              x[x < (Q1 - 1.5 * IQR) | x > (Q3 + 1.5 * IQR)] <- NA
+            }
+            return(x)
+          })
+          message("After removing outliers:")
+          print(head(self$df))
+        },
+        
+        normalize_data = function() {
+          numeric_columns <- sapply(self$df, is.numeric)
+          if (any(numeric_columns)) {
+            self$df[, numeric_columns] <- scale(self$df[, numeric_columns, drop = FALSE])
+          } else {
+            message("No numeric columns to normalize.")
+          }
+          message("After normalization:")
+          print(head(self$df))
+        },
+        
+        balance_classes = function() {
+          target_column <- "Résultats_des_tests"
+          
+          if (!(target_column %in% names(self$df))) {
+            stop("La colonne cible 'Résultats_des_tests' est absente du dataframe.")
+          }
+          
+          self$df[[target_column]] <- as.factor(self$df[[target_column]])
+          
+          # Suppression des lignes avec "Unknown" dans la colonne cible
+          self$df <- self$df[!(self$df[[target_column]] == "Unknown"), ]
+          
+          if (any(is.na(self$df[[target_column]]))) {
+            stop("La variable cible contient des valeurs manquantes.")
+          }
+          
+          train_control <- trainControl(method = "cv", number = 10, sampling = "smote")
+          
+          balanced_data <- tryCatch({
+            train(as.formula(paste(target_column, "~ .")),
+                  data = self$df,
+                  method = "rpart",
+                  trControl = train_control)
+          }, error = function(e) {
+            message(paste("Error in SMOTE:", e))
+            return(NULL)
+          })
+          
+          if (is.null(balanced_data)) {
+            stop("L'équilibrage des classes a échoué.")
+          }
+          
+          message("After balancing classes:")
+          self$df <- balanced_data$trainingData
+          print(head(self$df))
+        },
+        
+      dummy_variables = function() {
+      # Identifie les colonnes de type facteur
+      factor_columns <- sapply(self$df, is.factor)
+      
+      # Applique la dummification uniquement aux colonnes de type facteur
+      if (any(factor_columns)) {
+        dummy_model <- dummyVars(~ ., data = self$df[, factor_columns, drop = FALSE])
+        dummy_data <- predict(dummy_model, newdata = self$df[, factor_columns, drop = FALSE])
+        self$df <- cbind(self$df, as.data.frame(dummy_data))  # Ajoute les variables dummifiées
+      }
+      
+      message("After creating dummy variables:")
+      print(head(self$df))
+    }
+    ,
+        
+        preprocess_data = function() {
+          self$identify_and_transform_variable_types()
+          self$handle_missing_values()
+          self$remove_outliers()
+          self$normalize_data()
+          self$dummy_variables()
+          message("After complete preprocessing:")
+          print(head(self$df))
+        }
+      )
+    )
+
+
+
+    processor <- Preprocessing$new(df)
+     
+    df <- processor$preprocess_data()
+    ```
+
+```{r echo=FALSE}
+
+suppressPackageStartupMessages(library(knitr))
+suppressPackageStartupMessages(library(kableExtra))
+
+
+code_source <- "
+{r echo=FALSE, include=FALSE}
+library(R6)
+library(caret)
+library(ggplot2)
+library(dplyr)
+
+Preprocessing <- R6Class(Preprocessing,
+  public = list(
+    df = NULL,
+    
+    initialize = function(data) {
+      if (!is.data.frame(data)) {
+        stop(L'entrée doit être un dataframe.)
+      }
+      self$df <- data
+    },
+    
+    identify_and_transform_variable_types = function() {
+      self$df <- as.data.frame(self$df)
+      self$df <- self$df %>%
+        mutate(across(everything(), ~ {
+          if (is.character(.) || (is.numeric(.) && length(unique(.)) <= 10)) {
+            as.factor(.)
+          } else {
+            .
+          }
+        }))
+      message(After transformation:)
+      print(head(self$df))
+    },
+    
+    handle_missing_values = function() {
+      self$df[] <- lapply(self$df, function(x) {
+        if (is.numeric(x)) {
+          x[is.na(x)] <- mean(x, na.rm = TRUE)
+        } else if (is.factor(x) || is.character(x)) {
+          if (is.factor(x)) {
+            levels(x) <- c(levels(x), Unknown)
+          }
+          x[is.na(x)] <- Unknown
+        }
+        return(x)
+      })
+      message(After handling missing values:)
+      print(head(self$df))
+    },
+    
+    remove_outliers = function() {
+      self$df[] <- lapply(self$df, function(x) {
+        if (is.numeric(x)) {
+          Q1 <- quantile(x, 0.25, na.rm = TRUE)
+          Q3 <- quantile(x, 0.75, na.rm = TRUE)
+          IQR <- Q3 - Q1
+          x[x < (Q1 - 1.5 * IQR) | x > (Q3 + 1.5 * IQR)] <- NA
+        }
+        return(x)
+      })
+      message(After removing outliers:)
+      print(head(self$df))
+    },
+    
+    normalize_data = function() {
+      numeric_columns <- sapply(self$df, is.numeric)
+      if (any(numeric_columns)) {
+        self$df[, numeric_columns] <- scale(self$df[, numeric_columns, drop = FALSE])
+      } else {
+        message(No numeric columns to normalize.)
+      }
+      message(After normalization:)
+      print(head(self$df))
+    },
+    
+    balance_classes = function() {
+      target_column <- Résultats_des_tests
+      
+      if (!(target_column %in% names(self$df))) {
+        stop(La colonne cible Résultats_des_tests est absente du dataframe.)
+      }
+      
+      self$df[[target_column]] <- as.factor(self$df[[target_column]])
+      
+      # Suppression des lignes avec Unknown dans la colonne cible
+      self$df <- self$df[!(self$df[[target_column]] == Unknown), ]
+      
+      if (any(is.na(self$df[[target_column]]))) {
+        stop(La variable cible contient des valeurs manquantes.)
+      }
+      
+      train_control <- trainControl(method = cv, number = 10, sampling = smote)
+      
+      balanced_data <- tryCatch({
+        train(as.formula(paste(target_column, ~ .)),
+              data = self$df,
+              method = rpart,
+              trControl = train_control)
+      }, error = function(e) {
+        message(paste(Error in SMOTE:, e))
+        return(NULL)
+      })
+      
+      if (is.null(balanced_data)) {
+        stop(Léquilibrage des classes a échoué.)
+      }
+      
+      message(After balancing classes:)
+      self$df <- balanced_data$trainingData
+      print(head(self$df))
+    },
+    
+    dummy_variables = function() {
+      dummy_model <- dummyVars(~ ., data = self$df)
+      self$df <- as.data.frame(predict(dummy_model, newdata = self$df))
+      message(After creating dummy variables:)
+      print(head(self$df))
+    },
+    
+    preprocess_data = function() {
+      self$identify_and_transform_variable_types()
+      self$handle_missing_values()
+      self$remove_outliers()
+      self$normalize_data()
+      self$dummy_variables()
+      message(After complete preprocessing:)
+      print(head(self$df))
+    }
+  )
+)
+
+# Exemple dutilisation
+ 
+
+processor <- Preprocessing$new(df)
+
+# Exécution du pipeline complet
+processor$preprocess_data()
+
+"
+
+kable(data.frame(Code_source = strsplit(code_source, "\n")[[1]]), "html", escape = FALSE) %>%
+  kable_styling(bootstrap_options = c("striped", "hover"), full_width = FALSE, position = "left") %>%
+  column_spec(1, width = "100em", extra_css = "font-size: 8px; text-align: left;") %>%
+  row_spec(0, extra_css = "font-size: 8px; background-color: #f9f9f9;") %>%
+  kable_styling(html_font = "monospace") %>%
+  scroll_box(height = "20%", width = "100%")
+```
+
+### Head et Summary après cleaning 
+
+```{r echo=FALSE}
+head__ <- head(df)
+
+summary_table_ <- summary(df)
+
+kable(head__, format = "html", escape = FALSE) %>%
+  kable_styling(bootstrap_options = c("striped", "hover"), full_width = FALSE, position = "left") %>%
+  column_spec(1, width = "5em", extra_css = "font-size: 8px;") %>%
+  column_spec(2, width = "5em", extra_css = "font-size: 8px;") %>%
+  row_spec(0, font_size = 8) %>%
+  kable_styling(html_font = "monospace") %>%
+  scroll_box(height = "50%", width = "100%")
+
+
+kable(summary_table_, format = "html", escape = FALSE) %>%
+  kable_styling(bootstrap_options = c("striped", "hover"), full_width = FALSE, position = "left") %>%
+  column_spec(1, width = "5em", extra_css = "font-size: 8px;") %>%
+  column_spec(2, width = "5em", extra_css = "font-size: 8px;") %>%
+  row_spec(0, font_size = 8) %>%
+  kable_styling(html_font = "monospace") %>%
+  scroll_box(height = "50%", width = "100%")
+```
 
 ## **3. Analyse Exploratoire des Données (EDA)**
 
