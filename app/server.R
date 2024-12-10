@@ -10,6 +10,7 @@ library(pROC)
 library(shinyWidgets)
 library(jsonlite)
 library(xlsx)
+library(rJava)
 library(randomcoloR)
 library(rmarkdown)
 
