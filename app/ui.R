@@ -62,6 +62,15 @@ ui <- dashboardPage(
               plotlyOutput("dist")
             )),
         fluidRow(
+          box(
+            title = "Cumlative Distribution Plot", status = "primary", solidHeader = TRUE, width = 7,
+            plotlyOutput("cum_dist")
+          ),
+          box(
+            title = "Statistical Table", status = "primary", solidHeader = TRUE, width = 5,
+            tableOutput("stat_table")
+          )),
+        fluidRow(
             box(
               title = "Box Plot", status = "primary", solidHeader = TRUE, width = 6,
               plotlyOutput("box_plot"),

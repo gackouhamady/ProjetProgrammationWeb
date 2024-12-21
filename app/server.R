@@ -109,6 +109,51 @@ server <- function(input, output, session) {
       ggplotly(p)
     })
     
+    output$cum_dist <- renderPlotly({
+      req(input$var1)
+      df <- data()
+      var <- df[[input$var1]]
+      
+      ecdf_function <- ecdf(var)
+      ecdf_data <- data.frame(x = sort(var), y = ecdf_function(sort(var)))
+      
+      ggplot(ecdf_data, aes(x = x, y = y)) +
+        geom_step(color = randomColor()) +
+        geom_point() +
+        labs(title = "Empirical Cumulative Distribution Function",
+             x = "Data", y = "ECDF") +
+        theme_minimal()
+      
+    })
+    
+    output$stat_table <- renderTable({
+      req(input$var1)
+      df <- data()
+      var <- df[[input$var1]]
+      
+      if (is.numeric(var)){
+        hist_result <- hist(var, plot = FALSE)
+        data.frame(
+          Centers = as.character(hist_result$mids),
+          Freq = hist_result$counts,
+          Rel_Freq = hist_result$counts / sum(hist_result$counts),
+          Cum_Freq = cumsum(hist_result$counts),
+          Cum_Rel_Freq = cumsum(hist_result$counts) / sum(hist_result$counts)
+        )
+      }
+      else {
+        freq_table <- table(var)
+        data.frame(
+          Modality = as.numeric(names(freq_table)),
+          Frequency = as.vector(freq_table),
+          Relative_Frequency = prop.table(freq_table)$Freq,
+          Cumulative_Frequency = cumsum(freq_table),
+          Cumulative_Relative_Frequency = cumsum(prop.table(freq_table))
+        )
+        
+      }
+    })
+    
     output$box_plot <- renderPlotly({
       req(input$var1)
       df <- data()
