@@ -169,13 +169,13 @@ server <- function(input, output, session) {
     
     output$uni_summary <- renderTable({
       req(input$var1)
-      var <- data()[[input$var1]]
-      if(is.numeric(var)) {
-        var_summary <- summary(var)
+      v <- data()[[input$var1]]
+      if(is.numeric(v)) {
+        var_summary <- summary(v)
         var_names <- names(var_summary)
-        t(data.frame(Statistics = var_names, Value = as.numeric(var_summary)))
+        t(data.frame(Statistics = c(var_names, "var", "std"), Value = round(c(as.numeric(var_summary), var(v), sd(v)), digits = 2)))
       } else {
-        t(as.data.frame(table(var)))
+        t(as.data.frame(table(v)))
       }
     })
     
