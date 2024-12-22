@@ -126,7 +126,11 @@ ui <- dashboardPage(
             actionButton("preprocess_btn", "Preprocess Data")
           ),
           box(
-            title = "Model Selection and Training", status = "primary", solidHeader = TRUE, width = 8,
+            title = "Select positive class of reference", status = "primary", solidHeader = TRUE, width = 4,
+            pickerInput("ref_class", "Select positive class", choices = NULL)
+          ),
+          box(
+            title = "Model Selection and Training", status = "primary", solidHeader = TRUE, width = 4,
             checkboxGroupInput("models", "Select Models to Train",
                                choices = list("Logistic Regression" = "glm",
                                               "Random Forest" = "rf",
@@ -137,13 +141,34 @@ ui <- dashboardPage(
         ),
         fluidRow(
           box(
+            title = "Confusion Matrix", status = "primary", solidHeader = TRUE, width = 6,
+            tableOutput("conf_matrix"),
+          ),
+          box(
+            title = "Macro Averaging", status = "primary", solidHeader = TRUE, width = 2,
+            tableOutput("macro_avg")
+          ),
+          box(
+            title = "Weighted Macro", status = "primary", solidHeader = TRUE, width = 2,
+            tableOutput("weighted_macro_avg")
+          ),
+          box(
+            title = "Micro Averaging", status = "primary", solidHeader = TRUE, width = 2,
+            tableOutput("micro_avg")
+          )
+        ),
+        fluidRow(
+          box(
             title = "Model Evaluation", status = "primary", solidHeader = TRUE, width = 12,
             DTOutput("model_results"),
+            tableOutput("byclass_results"),
             plotlyOutput("roc_plot"),
             verbatimTextOutput("feature_importance")
-          )
+          )),
+        #fluidRow(
+        #  )
         )
       )
     )
-  )
+  
 )

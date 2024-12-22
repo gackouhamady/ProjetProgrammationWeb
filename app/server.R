@@ -13,32 +13,33 @@ library(xlsx)
 library(rJava)
 library(randomcoloR)
 library(rmarkdown)
-
+library(nnet)
+library(MLmetrics)
 
 # Define Server Logic
 server <- function(input, output, session) {
   
-  report_content <- reactive({
-    report_file <- "./../report.Rmd"
-    
-    if (file.exists(report_file)) { 
-      html_report <- rmarkdown::render(report_file, output_format = "html_document", quiet = TRUE)
-      return(html_report)  
-    } else {
-      return("Le fichier rapport.Rmd est introuvable.")
-    }
-  })
-  
-  output$report_preview <- renderUI({
-    report_file <- report_content()
-    req(report_file)   
-    
-    if (file.exists(report_file)) {
-      HTML(readLines(report_file))
-    } else {
-      "Erreur dans le rendu du fichier."
-    }
-  })
+  # report_content <- reactive({
+  #   report_file <- "./../report.Rmd"
+  #   
+  #   if (file.exists(report_file)) { 
+  #     html_report <- rmarkdown::render(report_file, output_format = "html_document", quiet = TRUE)
+  #     return(html_report)  
+  #   } else {
+  #     return("Le fichier rapport.Rmd est introuvable.")
+  #   }
+  # })
+  # 
+  # output$report_preview <- renderUI({
+  #   report_file <- report_content()
+  #   req(report_file)   
+  #   
+  #   if (file.exists(report_file)) {
+  #     HTML(readLines(report_file))
+  #   } else {
+  #     "Erreur dans le rendu du fichier."
+  #   }
+  # })
   
   
   # Reactive value to store the dataset
@@ -248,10 +249,11 @@ server <- function(input, output, session) {
   })
   
   # Preprocess Data
-  preprocessed_data <- eventReactive(input$preprocess_btn, {
+  preprocessed_data <- reactiveVal(NULL)
+  observeEvent(input$preprocess_btn, {
+    print("EXECUTED")
     req(data(), input$target_var)
     df <- data()
-    
     # Handle missing values
     if (input$missing_values == "remove") {
       df <- na.omit(df)
@@ -289,14 +291,17 @@ server <- function(input, output, session) {
       df <- upSample(x = df[ , names(df) != input$target_var], y = df[[input$target_var]])
       names(df)[ncol(df)] <- input$target_var
     }
-    
-    df
+    updatePickerInput(session, "ref_class", choices = unique(df[[input$target_var]]))
+    #print(input$target_var)
+    preprocessed_data(df)
   })
   
   # Train Models
   observeEvent(input$train_btn, {
+    print("EXECUTED")
     req(preprocessed_data(), input$models)
     df <- preprocessed_data()
+    print(df)
     target <- input$target_var
     models <- list()
     results <- data.frame(Model = character(), Accuracy = numeric(), Precision = numeric(),
@@ -313,7 +318,7 @@ server <- function(input, output, session) {
     # Train Selected Models
     for(model in input$models) {
       fit <- switch(model,
-                    glm = train(as.formula(paste(target, "~ .")), data = trainData, method = "glm", family = "binomial"),
+                    glm = train(as.formula(paste(target, "~ .")), data = trainData, method = "multinom"),
                     rf = train(as.formula(paste(target, "~ .")), data = trainData, method = "rf"),
                     svm = train(as.formula(paste(target, "~ .")), data = trainData, method = "svmRadial"))
       models[[model]] <- fit
@@ -325,15 +330,81 @@ server <- function(input, output, session) {
         prob_positive <- as.numeric(preds)
       }
       cm <- confusionMatrix(preds, testData[[target]])
+      output$conf_matrix <- renderTable({
+        if (!is.null(cm)) {
+          cm_matrix <- cm$table
+          actual <- rownames(cm_matrix)
+          predicted <- colnames(cm_matrix)
+          
+          matrix_output <- matrix("", nrow = length(actual) + 1, ncol = length(predicted) + 1)
+          matrix_output[1, ] <- c("Actual/Predicted", colnames(cm_matrix))
+          matrix_output[, 1] <- c("Actual/Predicted", rownames(cm_matrix))
+          
+          cm_table <- as.data.frame(cm$table)
+          for (i in 1:length(actual)){
+            for (j in 1:length(predicted)){
+              matrix_output[i + 1, j + 1] <- cm_table[cm_table$Reference == matrix_output[i + 1, 1] & cm_table$Prediction == matrix_output[1, j + 1], 3]
+            }
+          }
+          matrix_output
+        }
+      }, rownames = TRUE, colnames = TRUE)
+      
+      print(str(cm))
+      
       roc_obj <- roc(as.numeric(testData[[target]]), prob_positive)
       results <- rbind(results, data.frame(
         Model = model,
         Accuracy = cm$overall['Accuracy'],
-        Precision = cm$byClass['Precision'],
-        Recall = cm$byClass['Recall'],
-        F1 = cm$byClass['F1'],
+        Kappa = cm$overall['Kappa'],
+        AccuracyLower = cm$overall['AccuracyLower'],
+        AccuracyUpper = cm$overall['AccuracyUpper'],
+        AccuracyNull = cm$overall['AccuracyNull'],
+        AccuracyPValue = cm$overall['AccuracyPValue'],
         AUC = roc_obj$auc
       ))
+      
+      print(cm$byClass)
+      output$byclass_results <- renderTable(data.frame(Class = rownames(cm$table), cm$byClass))
+      
+      conf_matrix <- cm
+      
+      precision_macro <- mean(conf_matrix$byClass[, "Precision"])
+      recall_macro <- mean(conf_matrix$byClass[, "Recall"])
+      f1_macro <- mean(conf_matrix$byClass[, "F1"])
+      
+      metrics <- c("precision", "recall", "F1")
+      output$macro_avg <- renderTable({
+        data.frame(Metrics = metrics, Values = c(precision_macro, recall_macro, f1_macro))
+      })
+      
+      
+      support <- conf_matrix$table
+      weights <- support / sum(support)
+      
+      precision_weighted_macro <- sum(weights * conf_matrix$byClass[, "Precision"])
+      recall_weighted_macro <- sum(weights * conf_matrix$byClass[, "Recall"])
+      f1_weighted_macro <- sum(weights * conf_matrix$byClass[, "F1"])
+      
+      output$weighted_macro_avg <- renderTable({
+        data.frame(Metrics = metrics, Values = c(precision_weighted_macro, recall_weighted_macro, f1_weighted_macro))
+      })
+      
+      
+      conf_matrix_all <- conf_matrix$table
+      true_positives <- sum(diag(conf_matrix_all))  
+      false_positives <- sum(conf_matrix_all) - true_positives  
+      false_negatives <- sum(conf_matrix_all) - true_positives
+      
+      precision_micro <- true_positives / (true_positives + false_positives)
+      recall_micro <- true_positives / (true_positives + false_negatives)
+      f1_micro <- 2 * (precision_micro * recall_micro) / (precision_micro + recall_micro)
+      
+      output$micro_avg <- renderTable({
+        data.frame(Metrics = metrics, Values = c(precision_micro, recall_micro, f1_micro))
+      })
+      
+      
     }
     
     # Display Results
