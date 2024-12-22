@@ -109,7 +109,7 @@ tabItem(
           column(12, selectInput("var1_1d", "Select Variable", choices = NULL))
         ),
         actionButton("analyze_univariate_button", "Analyze Univariate"),
-        plotlyOutput("one_d_visualization")
+        plotOutput("one_d_visualization")  # Utilisez plotOutput pour déboguer
       ),
       
       # Data Transformation

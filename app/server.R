@@ -118,150 +118,203 @@ server <- function(input, output, session) {
     
     
   
-    # Correlation Matrix of Numeric Attributes  
-  
-  
+# Correlation Matrix of Numeric Attributes  
     output$correlation <- renderPlotly({
-    req(data())
-    df <- data()
-    names(df) <- gsub(" ", "_", names(df))
-    names(df) <- iconv(names(df), from = "UTF-8", to = "ASCII//TRANSLIT")
-    names(df) <- make.names(names(df))
+      req(data())
+      df <- data()
+      names(df) <- gsub(" ", "_", names(df))
+      names(df) <- iconv(names(df), from = "UTF-8", to = "ASCII//TRANSLIT")
+      names(df) <- make.names(names(df))
+      
+      numeric_cols <- names(df)[sapply(df, is.numeric)]
+      
+      if (length(numeric_cols) > 1) {
+        corr_matrix <- cor(df[numeric_cols], use = "complete.obs", method = "pearson")
+        
+        corr_melt <- as.data.frame(as.table(corr_matrix))
+        colnames(corr_melt) <- c("Var1", "Var2", "value")
+        
+        heatmap_plot <- ggplot(corr_melt, aes(Var1, Var2, fill = value)) +
+          geom_tile(color = "white") +
+          scale_fill_gradient2(low = "blue", high = "red", mid = "white", midpoint = 0, limit = c(-1, 1)) +
+          labs(title = "Heatmap des Corrélations", x = "", y = "") +
+          theme_minimal()
+        
+        ggplotly(heatmap_plot)
+      } else {
+        plot_ly(type = "scatter", mode = "text", text = "Pas assez de variables numériques pour calculer les corrélations.")
+      }
+    })
     
-    numeric_cols <- names(df)[sapply(df, is.numeric)]
-    
-    if (length(numeric_cols) > 1) {
-      corr_matrix <- cor(df[numeric_cols], use = "complete.obs", method = "pearson")
-      
-      corr_melt <- melt(corr_matrix)
-      
-      heatmap_plot <- ggplot(corr_melt, aes(Var1, Var2, fill = value)) +
-        geom_tile(color = "white") +
-        scale_fill_gradient2(low = "blue", high = "red", mid = "white", midpoint = 0, limit = c(-1, 1)) +
-        labs(title = "Heatmap des Corrélations", x = "", y = "") +
-        theme_minimal()
-      
-      ggplotly(heatmap_plot)
-    } else {
-      plot_ly(type = "scatter", mode = "text", text = "Pas assez de variables numériques pour calculer les corrélations.")
-    }
-  })
-  
-  
-  
-  
 
 
     
-    # 2D Visualtion 
-  
-   
+    
+    
+    
+    
+    
+# 2D Visualization
     output$var1 <- renderUI({
-    req(data())  # Attendre que les données soient chargées
-    selectInput("var1", "Select First Variable", choices = names(data()))
-  })
-  
-  
-  output$var2 <- renderUI({
-    req(data())  # Attendre que les données soient chargées
-    selectInput("var2", "Select Second Variable", choices = names(data()))
-  })
-  
- 
+      req(data())  # Attendre que les données soient chargées
+      selectInput("var1", "Select First Variable", choices = names(data()))
+    })
     
-  # Analyse bivariate event delclencher  
-  
-   observeEvent(input$analyze_button, {
-    req(input$var1, input$var2)
-    var1 <- input$var1
-    var2 <- input$var2
-    df <- data()
+    output$var2 <- renderUI({
+      req(data())  # Attendre que les données soient chargées
+      selectInput("var2", "Select Second Variable", choices = names(data()))
+    })
     
-    df <- df %>%
-      mutate(across(everything(), ~ {
-        if (is.character(.) && length(unique(.)) < 10) {
-          as.factor(.) 
-        } else {
-          . 
+    # Analyse bivariée événement déclenché
+    observeEvent(input$analyze_button, {
+      req(input$var1, input$var2)
+      var1 <- input$var1
+      var2 <- input$var2
+      df <- data()
+      
+      # Conversion explicite des variables caractères ou numériques avec <10 modalités en factorielles
+      for (col in names(df)) {
+        if (is.character(df[[col]]) && n_distinct(df[[col]], na.rm = TRUE) < 10) {
+          df[[col]] <- as.factor(df[[col]])
+          message("Converting column to factor: ", col)
+        } else if (is.numeric(df[[col]]) && n_distinct(df[[col]], na.rm = TRUE) < 10) {
+          df[[col]] <- as.factor(df[[col]])
+          message("Converting column to factor: ", col)
         }
-      }))
+      }
+      
+      numeric_cols <- names(df)[sapply(df, is.numeric)]
+      factor_cols <- names(df)[sapply(df, is.factor)]
+      
+      if (var1 %in% numeric_cols && var2 %in% numeric_cols) {
+        # Cas : Deux variables numériques
+        scatter_plot <- ggplot(df, aes_string(x = var1, y = var2)) +
+          geom_point(color = "blue", alpha = 0.7) +
+          labs(title = paste("Scatter plot between", var1, "and", var2)) +
+          theme_minimal()
+        output$two_d_visualization <- renderPlotly({ ggplotly(scatter_plot) })
+        
+      } else if ((var1 %in% numeric_cols && var2 %in% factor_cols) || (var2 %in% numeric_cols && var1 %in% factor_cols)) {
+        # Cas : Une variable numérique et une factorielle
+        if (var1 %in% numeric_cols) {
+          box_plot <- ggplot(df, aes_string(x = var2, y = var1)) +
+            geom_boxplot(fill = "orange", color = "black", alpha = 0.7) +
+            labs(title = paste("Boxplot between", var2, "and", var1)) +
+            theme_minimal()
+        } else {
+          box_plot <- ggplot(df, aes_string(x = var1, y = var2)) +
+            geom_boxplot(fill = "orange", color = "black", alpha = 0.7) +
+            labs(title = paste("Boxplot between", var1, "and", var2)) +
+            theme_minimal()
+        }
+        output$two_d_visualization <- renderPlotly({ ggplotly(box_plot) })
+        
+      } else if (var1 %in% factor_cols && var2 %in% factor_cols) {
+        # Cas : Deux variables factorielles
+        contingency_table <- as.matrix(table(df[[var1]], df[[var2]]))
+        chi2_test <- chisq.test(contingency_table)
+        chi2_plot <- plot_ly(
+          type = "heatmap",
+          z = contingency_table,
+          x = colnames(contingency_table),
+          y = rownames(contingency_table),
+          colorscale = "Viridis"
+        ) %>%
+          layout(
+            title = paste("Chi-Square Test p-value:", round(chi2_test$p.value, 4)),
+            xaxis = list(title = var2),
+            yaxis = list(title = var1)
+          )
+        output$two_d_visualization <- renderPlotly({ chi2_plot })
+        
+      } else {
+        # Cas : Sélection invalide
+        output$two_d_visualization <- renderPlotly({
+          plot_ly(type = "scatter", mode = "text", text = "Invalid selection. Please choose appropriate variables.")
+        })
+      }  
+    })
     
-    numeric_cols <- names(df)[sapply(df, is.numeric)]
-    factor_cols <- names(df)[sapply(df, is.factor)]
-    
-    if (var1 %in% numeric_cols && var2 %in% numeric_cols ) {
-      scatter_plot <- ggplot(df, aes_string(x = var1, y = var2)) +
-        geom_point(color = "blue", alpha = 0.7) +
-        labs(title = paste("Scatter plot between", var1, "and", var2)) +
-        theme_minimal()
-      output$two_d_visualization <- renderPlotly({ ggplotly(scatter_plot) })
-    } else if (var1 %in% numeric_cols && var2 %in% factor_cols  | var2 %in% numeric_cols && var1 %in% factor_cols ) {
-      box_plot <- ggplot(df, aes_string(x = var2, y = var1)) +
-        geom_boxplot(fill = "orange", color = "black", alpha = 0.7) +
-        labs(title = paste("Boxplot between", var2, "and", var1)) +
-        theme_minimal()
-      output$two_d_visualization <- renderPlotly({ ggplotly(box_plot) })
-    } else {
-      output$two_d_visualization <- renderPlotly({
-        plot_ly(type = "scatter", mode = "text", text = "Invalid selection. Please choose appropriate variables.")
-      })
-    }
-  })
+ 
   
   
 # 1D Visualisation 
-  
-  output$var1_1d <- renderUI({
-    req(data())
-    selectInput("var1_1d", "Select Variable", choices = names(data()))
-  })
-  
-  
-observeEvent(input$analyze_univariate_button, {
-    req(input$var1_1d)  # Vérifier qu'une variable est sélectionnée
-    var <- input$var1_1d
-    df <- data()
+    output$var1_1d <- renderUI({
+      req(data())
+      selectInput("var1_1d", "Select Variable", choices = names(data()))
+    })
     
-    # Transformation des variables
-    df <- df %>%
-      mutate(across(everything(), ~ {
-        if (is.character(.) && length(unique(.)) < 10) {
-          as.factor(.)
-        } else {
-          .
+    observeEvent(input$analyze_univariate_button, {
+      req(input$var1_1d)
+      var <- input$var1_1d
+      df <- data()
+      
+      # Conversion explicite des variables caractères ou numériques avec <10 modalités en factorielles
+      for (col in names(df)) {
+        if (is.character(df[[col]]) && n_distinct(df[[col]], na.rm = TRUE) < 10) {
+          df[[col]] <- as.factor(df[[col]])
+          message("Converting column to factor: ", col)
+        } else if (is.numeric(df[[col]]) && n_distinct(df[[col]], na.rm = TRUE) < 10) {
+          df[[col]] <- as.factor(df[[col]])
+          message("Converting column to factor: ", col)
         }
-      }))
+      }
+      
+      if (is.numeric(df[[var]])) {
+        hist_plot <- ggplot(df, aes_string(x = var)) +
+          geom_histogram(aes(y = after_stat(density)), binwidth = 10, fill = "blue", color = "black", alpha = 0.7) +
+          geom_density(color = "red", linewidth = 1.2) +
+          stat_ecdf(geom = "step", color = "green", linewidth = 1, linetype = "dashed") +
+          labs(title = paste("Histogram and Cumulative Frequency Curve of", var), x = var, y = "Density / Cumulative Frequency") +
+          theme_minimal()
+        output$one_d_visualization <- renderPlot({ hist_plot })
+      } else if (is.factor(df[[var]])) {
+        bar_plot <- ggplot(df, aes_string(x = var)) +
+          geom_bar(fill = "purple", color = "black", alpha = 0.7) +
+          labs(title = paste("Bar Plot of", var), x = var, y = "Frequency") +
+          theme_minimal()
+        
+        pie_data <- as.data.frame(table(df[[var]]))
+        colnames(pie_data) <- c(var, "Frequency")
+        
+        pie_chart <- ggplot(pie_data, aes(x = "", y = Frequency, fill = !!sym(var))) +
+          geom_bar(stat = "identity", width = 1, color = "black") +
+          coord_polar(theta = "y") +
+          labs(title = paste("Pie Chart of", var)) +
+          theme_minimal()
+        
+        output$one_d_visualization <- renderPlot({ gridExtra::grid.arrange(bar_plot, pie_chart, nrow = 2) })
+      } else {
+        output$one_d_visualization <- renderPlot({
+          plot.new()
+          text(0.5, 0.5, "Invalid selection. Please choose an appropriate variable.")
+        })
+      }
+    })
     
-  # Identifier le type de la variable sélectionnée
-    if (is.numeric(df[[var]])) {
-      # Histogramme pour les variables numériques
-      hist_plot <- ggplot(df, aes_string(x = var)) +
-        geom_histogram(binwidth = 10, fill = "blue", color = "black", alpha = 0.7) +
-        labs(title = paste("Histogram of", var), x = var, y = "Frequency") +
-        theme_minimal()
-      output$one_d_visualization <- renderPlotly({ ggplotly(hist_plot) })
-      
-    } else if (is.factor(df[[var]])) {
-      # Barplot pour les variables catégorielles
-      bar_plot <- ggplot(df, aes_string(x = var)) +
-        geom_bar(fill = "purple", color = "black", alpha = 0.7) +
-        labs(title = paste("Bar plot of", var), x = var, y = "Frequency") +
-        theme_minimal()
-      output$one_d_visualization <- renderPlotly({ ggplotly(bar_plot) })
-      
-    } else {
-      # Message d'erreur pour les types non supportés
-      output$one_d_visualization <- renderPlotly({
-        plot_ly(type = "scatter", mode = "text", text = "Invalid selection. Please choose an appropriate variable.")
-      })
-    }
-  })
-  
-
-
-
-  
-
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
 # Data Transformation 
 # Observateur pour traiter les valeurs manquantes
 observeEvent(input$apply_missing_values, {

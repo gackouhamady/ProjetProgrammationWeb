@@ -10,6 +10,8 @@
 
 -   **Outilers** : Sur toutes les colonnes numériques , le nombre d'outliers detectés après le chargement du jeu de données est de 270...
 
+-   Attriton : cette variable répresente notre cible .
+
 Pour avoir un model de meilleur qualité , la correction de ces outliers est nécéssaire ... Ces outliers sont ensuite corrigés pour éviter les problèmes de biais en ne pas perturbant les modèles apprises.
 
 **`Proportion de l'attrition des employées :`**
@@ -30,7 +32,7 @@ Ces techniques permettent de gérer le problème de déséquilibre des données.
 
 Les résultats des modèles appris seront présentés par la suite.
 
-### Heatmap des corrélations entre variables numériques
+# Heatmap des corrélations entre variables numériques
 
 Elle permet de mesurer le degré de dépendance ou d'indépendance entre les variables numériques du jeu de données. Elle fournit également un aperçu du degré de corrélation entre ces variables, ce qui est très utile pour identifier les meilleures variables à sélectionner pour des problèmes de machine learning, tels que la régression ou la classification.
 
@@ -38,7 +40,69 @@ Elle permet de mesurer le degré de dépendance ou d'indépendance entre les var
 knitr::include_graphics("assets/heatmap.png")
 ```
 
-## Présentation et comparaison des modèles apprises :
+# Analyse Univariée 
+
+## Analyse des variables numériques : 
+
+Les histogrammes et courbes de fréquence cumulative révèlent des distributions hétérogènes des variables "Âge", "Distance du domicile" et "Années dans l'entreprise", suggérant des proportions variables de chaque catégorie d'âge, de distance et d'ancienneté, ce qui aura un impact significatif sur la construction de modèles prédictifs robustes et précis. En procédant ainsi pour toutes les variables numériques , cela permet de guider dans le choix des variables adéquates pour la formation d'un modèl.
+
+```{r echo=FALSE, fig.show="hold", out.width="100%", out.height="100%"}
+knitr::include_graphics("assets/num_1.png")
+knitr::include_graphics("assets/num2.png")
+knitr::include_graphics("assets/num3.png")
+```
+
+## Analyse de variables catégorielles 
+
+L'analyse des proportions révèle des déséquilibres significatifs dans la variable cible "Attrition", suggérant un besoin d'équilibrage des données pour améliorer la performance du modèle prédictif. De plus, les proportions élevées de certaines catégories dans les variables explicatives pourraient indiquer des facteurs de risque clés liés à l'attrition.
+
+```{r echo=FALSE, fig.show="hold", out.width="100%", out.height="100%"}
+knitr::include_graphics("assets/attrition_pie_b.png")
+knitr::include_graphics("assets/wlife_pie.png")
+knitr::include_graphics("assets/depar.png")
+```
+
+# Analyse bivariée
+
+## Variables catégorielles Vs Numériques 
+
+L'analyse des boxplots révèle une légère tendance pour les employés plus âgés à quitter l'entreprise, suggérant que l'âge pourrait être un prédicteur intéressant d'attrition, contrairement à la distance de la maison qui ne semble pas discriminante entre les deux groupes.
+
+```{r echo=FALSE, fig.show="hold", out.width="100%", out.height="100%"}
+knitr::include_graphics("assets/box_age.png")
+knitr::include_graphics("assets/box_2.png")
+ 
+```
+
+## Variables Numériques Versus Variables Numériques 
+
+Les visualisations révèlent une faible corrélation entre les variables numériques, ce qui est encourageant pour la construction de modèles de prédiction. Étudier ces relations permet d'éviter les problèmes de colinéarité et de sélectionner les variables les plus pertinentes pour expliquer la variable cible.
+
+```{r echo=FALSE, fig.show="hold", out.width="100%", out.height="100%"}
+knitr::include_graphics("assets/age_distance.png")
+knitr::include_graphics("assets/income.png")
+knitr::include_graphics("assets/satification_2.png")
+ 
+```
+
+## Variables Catégoriques Versus Variables Catégoriques 
+
+Les deux graphiques représentent des **tables de contingence** qui croisent deux variables catégorielles : "Attrition" (départ de l'entreprise) et respectivement "Département" et "Éducation". Les couleurs indiquent le nombre d'observations dans chaque cellule. Le test du Chi-deux nous permet de déterminer si la distribution des observations est indépendante d'une variable à l'autre.
+
+**Interprétation des résultats :**
+
+-   **Graphique 1 :** Le p-value du test du Chi-deux est très faible (0.0045), ce qui signifie qu'il existe une **association significative** entre l'attrition et le département. Autrement dit, les employés de différents départements ont des probabilités différentes de quitter l'entreprise.
+
+-   **Graphique 2 :** Le p-value est beaucoup plus élevé (0.5455), ce qui indique qu'il n'y a **pas d'association significative** entre l'attrition et le niveau d'éducation.
+
+```{r echo=FALSE, fig.show="hold", out.width="100%", out.height="100%"}
+knitr::include_graphics("assets/chi_1.png")
+cat("<br>")
+knitr::include_graphics("assets/chi_2.png")
+
+```
+
+## Présentation et comparaison des modèls appris :
 
 #### Random Forest versus Decision Trees :
 
