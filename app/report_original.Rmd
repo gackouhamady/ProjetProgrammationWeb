@@ -1,0 +1,85 @@
+---
+---
+---
+
+# Description du jeu de données
+
+-   **Dimensions** : Le jeu de données contient 1470 lignes et 13 colonnes.
+
+-   **Valeurs manquantes** : Aucune valeur maquante n'a été détecté après le chargement du jeu de dataset
+
+-   **Outilers** : Sur toutes les colonnes numériques , le nombre d'outliers detectés après le chargement du jeu de données est de 270...
+
+Pour avoir un model de meilleur qualité , la correction de ces outliers est nécéssaire ... Ces outliers sont ensuite corrigés pour éviter les problèmes de biais en ne pas perturbant les modèles apprises.
+
+**`Proportion de l'attrition des employées :`**
+
+```{r echo=FALSE}
+knitr::include_graphics("assets/attrition_proportion.png")
+```
+
+Sur ce graphique, on remarque que la classe "Yes" contient environ 300 points de données, tandis que la classe "No" en compte environ 1200 ou plus. Cela met en évidence un problème de déséquilibre des classes.
+
+Pour pallier ce problème, nous avons implémenté dans l'application quatre techniques de gestion du déséquilibre des données, regroupées en deux types :
+
+-   **Data Level** : Random Under-Sampling et Random Over-Sampling.
+
+-   **Algorithm Level** : Cost-Sensitive Learning et One-Class Learning.
+
+Ces techniques permettent de gérer le problème de déséquilibre des données. Pour ce cas d'étude, il est apparu que, parmi ces méthodes, celles du **Data Level** ont donné les meilleures performances, notamment avec le Random Under-Sampling.
+
+Les résultats des modèles appris seront présentés par la suite.
+
+### Heatmap des corrélations entre variables numériques
+
+Elle permet de mesurer le degré de dépendance ou d'indépendance entre les variables numériques du jeu de données. Elle fournit également un aperçu du degré de corrélation entre ces variables, ce qui est très utile pour identifier les meilleures variables à sélectionner pour des problèmes de machine learning, tels que la régression ou la classification.
+
+```{r echo=FALSE}
+knitr::include_graphics("assets/heatmap.png")
+```
+
+## Présentation et comparaison des modèles apprises :
+
+#### Random Forest versus Decision Trees :
+
+Sur les graphiques ci-dessous, on peut observer l'importance des features pour les modèles appris avec le Random Forest, les résultats de leurs performances, ainsi que la courbe ROC. Les performances globales des deux modèles sont satisfaisantes.
+
+Cependant, en comparant leurs performances, il s'avère que le Decision Tree donne de meilleurs résultats que le Random Forest. Pour ce jeu de données, entre ces deux algorithmes, le modèle le mieux adapté est le Decision Tree.
+
+```{r echo=FALSE, fig.show="hold", out.width="100%", out.height="100%"}
+knitr::include_graphics("assets/attrition_rf_result.png")
+knitr::include_graphics("assets/attrition_rf_importance.png")
+knitr::include_graphics("assets/attrition_dt_result.png")
+```
+
+#### Decison Trees Versus KNN
+
+```{r echo=FALSE, fig.show="hold", out.width="100%", out.height="100%"}
+knitr::include_graphics("assets/attrition_dt_result.png")
+knitr::include_graphics("assets/attrition_knn_result.png")
+```
+
+Pour ce jeu de données, il est également évident, en comparant les performances sur les graphiques, que c'est le KNN qui donne les meilleurs résultats. Le meilleur modèle est donc celui du KNN.
+
+#### KNN versus Logistic Regression
+
+```{r echo=FALSE, fig.show="hold", out.width="100%"}
+knitr::include_graphics("assets/attrition_knn_result.png")
+knitr::include_graphics("assets/attrition_lr_result.png")
+
+```
+
+Au vu des performances comparées, on peut aisément conclure que le meilleur modèle parmi le KNN et la régression logistique est celui de la régression logistique.
+
+#### Logistic Regression Versus SVM :
+
+```{r echo=FALSE, fig.show="hold", out.width="100%"}
+knitr::include_graphics("assets/attrition_lr_result.png")
+knitr::include_graphics("assets/svm.png")
+```
+
+Le modèle Logistique est le mieux adapté au vu des performances comparées. Il offre de meilleures précisions avec des valeurs plus cohérentes pour les métriques d'évaluation, et il surpasse le modèle Support Vector Machine en termes de précision.
+
+#### Conclusion :
+
+Sur ce jeu de données, après avoir comparé les performances des différents modèles à travers plusieurs étapes d'évaluation, il ressort que le modèle offrant les meilleurs résultats est celui de Logistic Regression. Cette conclusion est basée sur l'analyse des métriques de performance, telles que la précision, le rappel, l'accuracy, ainsi que la courbe ROC, qui montrent des résultats plus satisfaisants par rapport aux autres modèles testés
