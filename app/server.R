@@ -19,27 +19,18 @@ library(MLmetrics)
 # Define Server Logic
 server <- function(input, output, session) {
   
-  # report_content <- reactive({
-  #   report_file <- "./../report.Rmd"
-  #   
-  #   if (file.exists(report_file)) { 
-  #     html_report <- rmarkdown::render(report_file, output_format = "html_document", quiet = TRUE)
-  #     return(html_report)  
-  #   } else {
-  #     return("Le fichier rapport.Rmd est introuvable.")
-  #   }
-  # })
-  # 
-  # output$report_preview <- renderUI({
-  #   report_file <- report_content()
-  #   req(report_file)   
-  #   
-  #   if (file.exists(report_file)) {
-  #     HTML(readLines(report_file))
-  #   } else {
-  #     "Erreur dans le rendu du fichier."
-  #   }
-  # })
+    report_content <- reactive({
+      report_file <- "./../report_original.Rmd"
+      html_report <- rmarkdown::render(report_file, output_format = "html_document", quiet = TRUE)
+      return(html_report)  
+    })
+    
+    output$report_preview <- renderUI({
+      report_file <- report_content()
+      req(report_file)   
+      HTML(readLines(report_file))
+      
+    })
   
   
   # Reactive value to store the dataset
@@ -251,7 +242,7 @@ server <- function(input, output, session) {
   # Preprocess Data
   preprocessed_data <- reactiveVal(NULL)
   observeEvent(input$preprocess_btn, {
-    #print("EXECUTED")
+    
     req(data(), input$target_var)
     df <- data()
     # Handle missing values
@@ -300,10 +291,10 @@ server <- function(input, output, session) {
     
   # Train Models
   observeEvent(input$train_btn, {
-    #print("EXECUTED")
+    
     req(preprocessed_data(), input$models)
     df <- preprocessed_data()
-    #print(df)
+    
     target <- input$target_var
     models <- list()
     results <- data.frame(Model = character(), Accuracy = numeric(), Precision = numeric(),
@@ -367,19 +358,6 @@ server <- function(input, output, session) {
       if (model == "glm") {output$glm_conf_matrix = conf_matrix}
       else if (model == "rf") {output$rf_conf_matrix = conf_matrix}
       else if (model == "svm") {output$svm_conf_matrix = conf_matrix}
-      #print(str(cm))
-      
-      # roc_obj <- roc(as.numeric(testData[[target]]), prob_positive)
-      # results <- rbind(results, data.frame(
-      #   Model = model,
-      #   Accuracy = cm$overall['Accuracy'],
-      #   Kappa = cm$overall['Kappa'],
-      #   AccuracyLower = cm$overall['AccuracyLower'],
-      #   AccuracyUpper = cm$overall['AccuracyUpper'],
-      #   AccuracyNull = cm$overall['AccuracyNull'],
-      #   AccuracyPValue = cm$overall['AccuracyPValue'],
-      #   AUC = roc_obj$auc
-      # ))
       
       acc <- renderValueBox({valueBox(
         format(cm$overall['Accuracy'], digits = 4),

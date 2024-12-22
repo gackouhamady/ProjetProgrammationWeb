@@ -140,36 +140,39 @@ ui <- dashboardPage(
           )
         ),
         
-        
-        conditionalPanel( condition = "input.models.includes('glm')",
-                          box(
-                            title = "Logistic Regression Parameters", status = "primary", solidHeader = TRUE, width = 12,
-                            numericInput("decay", label = "Regularization coef",value = 0.1, 
-                                         min = 0, max = 10),
-                            numericInput("maxit", label = "Max iterations",value = 10, 
-                                         min = 1, max = 200)
-                          ) ),
-        
-        conditionalPanel( condition = "input.models.includes('rf')",
-                          box(
-                            title = "Random Forest Parameters", status = "primary", solidHeader = TRUE, width = 12,
-                            numericInput("ntree", label = "Num of trees", value = 10, 
-                                         min = 1, max = 100),
-                            numericInput("nodesize", label = "Min points in leaf", value = 10, 
-                                         min = 1),
-                            numericInput("maxnodes", label = "Max num of leaves", value = 10, 
-                                         min = 1),
-                            checkboxInput("replace", label = "Sample with replacement?")
-                          ) ),
-        
-        conditionalPanel( condition = "input.models.includes('svm')",
-                          box(
-                            title = "Support Vector Machine Parameters", status = "primary", solidHeader = TRUE, width = 12,
-                            numericInput("C", label = "Coef C", value = 1, 
-                                         min = 0),
-                            numericInput("sigma", label = "Coef Sigma", value = 1, 
-                                         min = 0)
+        fluidRow(
+          conditionalPanel( condition = "input.models.includes('glm')",
+                            box(
+                              title = "Logistic Regression Parameters", status = "primary", solidHeader = TRUE, width = 4,
+                              numericInput("decay", label = "Regularization coef",value = 0.1, 
+                                           min = 0, max = 10),
+                              numericInput("maxit", label = "Max iterations",value = 10, 
+                                           min = 1, max = 200)
                             ) ),
+          
+          conditionalPanel( condition = "input.models.includes('rf')",
+                            box(
+                              title = "Random Forest Parameters", status = "primary", solidHeader = TRUE, width = 4,
+                              numericInput("ntree", label = "Num of trees", value = 10, 
+                                           min = 1, max = 100),
+                              numericInput("nodesize", label = "Min points in leaf", value = 10, 
+                                           min = 1),
+                              numericInput("maxnodes", label = "Max num of leaves", value = 10, 
+                                           min = 1),
+                              checkboxInput("replace", label = "Sample with replacement?")
+                            ) ),
+          
+          conditionalPanel( condition = "input.models.includes('svm')",
+                            box(
+                              title = "Support Vector Machine Parameters", status = "primary", solidHeader = TRUE, width = 4,
+                              numericInput("C", label = "Coef C", value = 1, 
+                                           min = 0),
+                              numericInput("sigma", label = "Coef Sigma", value = 1, 
+                                           min = 0)
+                            ) )
+          
+        ),
+        
         
         
         conditionalPanel(condition = "input.models.includes('glm')",
