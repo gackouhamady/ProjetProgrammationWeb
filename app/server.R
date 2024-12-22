@@ -296,6 +296,8 @@ server <- function(input, output, session) {
     preprocessed_data(df)
   })
   
+    
+    
   # Train Models
   observeEvent(input$train_btn, {
     #print("EXECUTED")
@@ -316,11 +318,23 @@ server <- function(input, output, session) {
     testData[[target]] <- as.factor(testData[[target]])
     
     # Train Selected Models
+    glm_tune_grid <- expand.grid(decay = input$decay)
+    rf_tune_grid <- expand.grid(mtry = length(colnames(df)) - 1)
+    svm_tune_grid <- expand.grid(C = input$C, sigma = input$sigma)
+    
+    trControl = trainControl(method = "cv", number = 10)
     for(model in input$models) {
       fit <- switch(model,
-                    glm = train(as.formula(paste(target, "~ .")), data = trainData, method = "multinom"),
-                    rf = train(as.formula(paste(target, "~ .")), data = trainData, method = "rf"),
-                    svm = train(as.formula(paste(target, "~ .")), data = trainData, method = "svmRadial"))
+                    glm = train(as.formula(paste(target, "~ .")), data = trainData, tuneGrid = glm_tune_grid, 
+                                trControl = trControl, method = "multinom", maxit = input$maxit),
+                    rf = train(as.formula(paste(target, "~ .")), data = trainData, tuneGrid = rf_tune_grid, 
+                               trControl = trControl, method = "rf", 
+                               ntree = input$ntree, 
+                               nodesize = input$nodesize, 
+                               maxnodes = input$maxnodes,
+                               replace = input$replace),
+                    svm = train(as.formula(paste(target, "~ .")), data = trainData, tuneGrid = svm_tune_grid, 
+                                trControl = trControl, method = "svmRadial"))
       models[[model]] <- fit
       preds <- predict(fit, testData)
       if ("prob" %in% fit$control$classProbs) {
@@ -330,7 +344,7 @@ server <- function(input, output, session) {
         prob_positive <- as.numeric(preds)
       }
       cm <- confusionMatrix(preds, testData[[target]])
-      output$conf_matrix <- renderTable({
+      conf_matrix <- renderTable({
         if (!is.null(cm)) {
           cm_matrix <- cm$table
           actual <- rownames(cm_matrix)
@@ -350,6 +364,9 @@ server <- function(input, output, session) {
         }
       }, rownames = TRUE, colnames = TRUE)
       
+      if (model == "glm") {output$glm_conf_matrix = conf_matrix}
+      else if (model == "rf") {output$rf_conf_matrix = conf_matrix}
+      else if (model == "svm") {output$svm_conf_matrix = conf_matrix}
       #print(str(cm))
       
       # roc_obj <- roc(as.numeric(testData[[target]]), prob_positive)
@@ -364,16 +381,22 @@ server <- function(input, output, session) {
       #   AUC = roc_obj$auc
       # ))
       
-      output$acc <- renderValueBox({valueBox(
+      acc <- renderValueBox({valueBox(
         format(cm$overall['Accuracy'], digits = 4),
         "Accuracy",
         icon = icon("chart-line"),
         color = "aqua"
       )})
       
+      if (model == "glm") {output$glm_acc = acc}
+      else if (model == "rf") {output$rf_acc = acc}
+      else if (model == "svm") {output$svm_acc = acc}
       #print(cm$byClass)
-      output$byclass_results <- renderTable(data.frame(Class = rownames(cm$table), cm$byClass))
+      byclass_results <- renderTable(data.frame(Class = rownames(cm$table), cm$byClass))
       
+      if (model == "glm") {output$glm_byclass_results = byclass_results}
+      else if (model == "rf") {output$rf_byclass_results = byclass_results}
+      else if (model == "svm") {output$svm_byclass_results = byclass_results}
       conf_matrix <- cm
       
       precision_macro <- mean(conf_matrix$byClass[, "Precision"])
@@ -381,10 +404,12 @@ server <- function(input, output, session) {
       f1_macro <- mean(conf_matrix$byClass[, "F1"])
       
       metrics <- c("precision", "recall", "F1")
-      output$macro_avg <- renderTable({
+      macro_avg <- renderTable({
         data.frame(Metrics = metrics, Values = c(precision_macro, recall_macro, f1_macro))
       })
-      
+      if (model == "glm") {output$glm_macro_avg = macro_avg}
+      else if (model == "rf") {output$rf_macro_avg = macro_avg}
+      else if (model == "svm") {output$svm_macro_avg = macro_avg}
       
       support <- conf_matrix$table
       weights <- support / sum(support)
@@ -393,9 +418,13 @@ server <- function(input, output, session) {
       recall_weighted_macro <- sum(weights * conf_matrix$byClass[, "Recall"])
       f1_weighted_macro <- sum(weights * conf_matrix$byClass[, "F1"])
       
-      output$weighted_macro_avg <- renderTable({
+      weighted_macro_avg <- renderTable({
         data.frame(Metrics = metrics, Values = c(precision_weighted_macro, recall_weighted_macro, f1_weighted_macro))
       })
+      
+      if (model == "glm") {output$glm_weighted_macro_avg = weighted_macro_avg}
+      else if (model == "rf") {output$rf_weighted_macro_avg = weighted_macro_avg}
+      else if (model == "svm") {output$svm_weighted_macro_avg = weighted_macro_avg}
       
       
       conf_matrix_all <- conf_matrix$table
@@ -407,11 +436,13 @@ server <- function(input, output, session) {
       recall_micro <- true_positives / (true_positives + false_negatives)
       f1_micro <- 2 * (precision_micro * recall_micro) / (precision_micro + recall_micro)
       
-      output$micro_avg <- renderTable({
+      micro_avg <- renderTable({
         data.frame(Metrics = metrics, Values = c(precision_micro, recall_micro, f1_micro))
       })
       
-      
+      if (model == "glm") {output$glm_micro_avg = micro_avg}
+      else if (model == "rf") {output$rf_micro_avg = micro_avg}
+      else if (model == "svm") {output$svm_micro_avg = micro_avg}
     }
     
     # ROC Plot
@@ -430,22 +461,25 @@ server <- function(input, output, session) {
         prob_positive <- as.numeric(predict(fit, testData))
         prob_positive <- ifelse(prob_positive != index, 0, prob_positive)
         #print(prob_positive)
-        target <- as.numeric(testData[[target]])
-        print(target)
-        target <- ifelse(target != index, 0, target)
-        pred <- prediction(prob_positive, target)
+        targ <- as.numeric(testData[[target]])
+        print(targ)
+        targ <- ifelse(targ != index, 0, targ)
+        pred <- prediction(prob_positive, targ)
         
         #print(str(performance(pred, measure = "auc")))
         
         
-        output$AUC <- renderValueBox({valueBox(
+        AUC <- renderValueBox({valueBox(
           format(performance(pred, measure = "auc")@y.values[[1]], digits = 4),
           "AUC",
           icon = icon("chart-line"),
           color = "aqua"
         )})
       
-      
+        if (model == "glm") {output$glm_AUC = AUC}
+        else if (model == "rf") {output$rf_AUC = AUC}
+        else if (model == "svm") {output$svm_AUC = AUC}
+        
         perf <- performance(pred, "tpr", "fpr")
         roc_df <- data.frame(FPR = perf@x.values[[1]], TPR = perf@y.values[[1]], Model = model)
         roc_data <- rbind(roc_data, roc_df)

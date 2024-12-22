@@ -139,35 +139,140 @@ ui <- dashboardPage(
             actionButton("train_btn", "Train Models")
           )
         ),
-        fluidRow(
-          box(
-            title = "Confusion Matrix", status = "primary", solidHeader = TRUE, width = 6,
-            tableOutput("conf_matrix"),
-          ),
-          box(
-            title = "Macro Averaging", status = "primary", solidHeader = TRUE, width = 2,
-            tableOutput("macro_avg")
-          ),
-          box(
-            title = "Weighted Macro", status = "primary", solidHeader = TRUE, width = 2,
-            tableOutput("weighted_macro_avg")
-          ),
-          box(
-            title = "Micro Averaging", status = "primary", solidHeader = TRUE, width = 2,
-            tableOutput("micro_avg")
-          )
-        ),
-        fluidRow(
-          box(
-            title = "Model Evaluation", status = "primary", solidHeader = TRUE, width = 12,
-            valueBoxOutput("acc", width = 4),
-            valueBoxOutput("AUC", width = 4),
-            tableOutput("byclass_results"),
-            plotlyOutput("roc_plot"),
-            verbatimTextOutput("feature_importance")
-          )),
-        #fluidRow(
-        #  )
+        
+        
+        conditionalPanel( condition = "input.models.includes('glm')",
+                          box(
+                            title = "Logistic Regression Parameters", status = "primary", solidHeader = TRUE, width = 12,
+                            numericInput("decay", label = "Regularization coef",value = 0.1, 
+                                         min = 0, max = 10),
+                            numericInput("maxit", label = "Max iterations",value = 10, 
+                                         min = 1, max = 200)
+                          ) ),
+        
+        conditionalPanel( condition = "input.models.includes('rf')",
+                          box(
+                            title = "Random Forest Parameters", status = "primary", solidHeader = TRUE, width = 12,
+                            numericInput("ntree", label = "Num of trees", value = 10, 
+                                         min = 1, max = 100),
+                            numericInput("nodesize", label = "Min points in leaf", value = 10, 
+                                         min = 1),
+                            numericInput("maxnodes", label = "Max num of leaves", value = 10, 
+                                         min = 1),
+                            checkboxInput("replace", label = "Sample with replacement?")
+                          ) ),
+        
+        conditionalPanel( condition = "input.models.includes('svm')",
+                          box(
+                            title = "Support Vector Machine Parameters", status = "primary", solidHeader = TRUE, width = 12,
+                            numericInput("C", label = "Coef C", value = 1, 
+                                         min = 0),
+                            numericInput("sigma", label = "Coef Sigma", value = 1, 
+                                         min = 0)
+                            ) ),
+        
+        
+        conditionalPanel(condition = "input.models.includes('glm')",
+                         fluidRow(
+                           box(
+                             title = "Confusion Matrix", status = "primary", solidHeader = TRUE, width = 6,
+                             tableOutput("glm_conf_matrix"),
+                           ),
+                           box(
+                             title = "Macro Averaging", status = "primary", solidHeader = TRUE, width = 2,
+                             tableOutput("glm_macro_avg")
+                           ),
+                           box(
+                             title = "Weighted Macro", status = "primary", solidHeader = TRUE, width = 2,
+                             tableOutput("glm_weighted_macro_avg")
+                           ),
+                           box(
+                             title = "Micro Averaging", status = "primary", solidHeader = TRUE, width = 2,
+                             tableOutput("glm_micro_avg")
+                           )
+                         ),
+                         fluidRow(
+                           box(
+                             title = "Model Evaluation", status = "primary", solidHeader = TRUE, width = 12,
+                             valueBoxOutput("glm_acc", width = 4),
+                             valueBoxOutput("glm_AUC", width = 4),
+                             #tableOutput("glm_byclass_results"),
+                             div(style = "overflow-x: auto; width: 100%;",
+                                 tableOutput("glm_byclass_results"))
+                             #verbatimTextOutput("feature_importance")
+                           ))
+                         
+                         
+                        ),
+        conditionalPanel(condition = "input.models.includes('rf')",
+                         fluidRow(
+                           box(
+                             title = "Confusion Matrix", status = "primary", solidHeader = TRUE, width = 6,
+                             tableOutput("rf_conf_matrix"),
+                           ),
+                           box(
+                             title = "Macro Averaging", status = "primary", solidHeader = TRUE, width = 2,
+                             tableOutput("rf_macro_avg")
+                           ),
+                           box(
+                             title = "Weighted Macro", status = "primary", solidHeader = TRUE, width = 2,
+                             tableOutput("rf_weighted_macro_avg")
+                           ),
+                           box(
+                             title = "Micro Averaging", status = "primary", solidHeader = TRUE, width = 2,
+                             tableOutput("rf_micro_avg")
+                           )
+                         ),
+                         fluidRow(
+                           box(
+                             title = "Model Evaluation", status = "primary", solidHeader = TRUE, width = 12,
+                             
+                             valueBoxOutput("rf_acc", width = 4),
+                             valueBoxOutput("rf_AUC", width = 4),
+                             div(style = "overflow-x: auto; width: 100%;",
+                                 tableOutput("rf_byclass_results")),
+                             #verbatimTextOutput("feature_importance")
+                           ))
+                         
+                         
+                ),
+        conditionalPanel(condition = "input.models.includes('svm')",
+                         fluidRow(
+                           box(
+                             title = "Confusion Matrix", status = "primary", solidHeader = TRUE, width = 6,
+                             tableOutput("svm_conf_matrix"),
+                           ),
+                           box(
+                             title = "Macro Averaging", status = "primary", solidHeader = TRUE, width = 2,
+                             tableOutput("svm_macro_avg")
+                           ),
+                           box(
+                             title = "Weighted Macro", status = "primary", solidHeader = TRUE, width = 2,
+                             tableOutput("svm_weighted_macro_avg")
+                           ),
+                           box(
+                             title = "Micro Averaging", status = "primary", solidHeader = TRUE, width = 2,
+                             tableOutput("svm_micro_avg")
+                           )
+                         ),
+                         fluidRow(
+                           box(
+                             title = "Model Evaluation", status = "primary", solidHeader = TRUE, width = 12,
+                             valueBoxOutput("svm_acc", width = 4),
+                             valueBoxOutput("svm_AUC", width = 4),
+                             div(style = "overflow-x: auto; width: 100%;",
+                                 tableOutput("svm_byclass_results")),
+                             #verbatimTextOutput("feature_importance")
+                           ))
+                         
+                         
+                  ),
+          fluidRow(
+            box(
+              title = "ROC Curve", status = "primary", solidHeader = TRUE, width = 12,
+              plotlyOutput("roc_plot")
+            ))
+        
         )
       )
     )
