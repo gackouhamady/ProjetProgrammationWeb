@@ -251,7 +251,7 @@ server <- function(input, output, session) {
   # Preprocess Data
   preprocessed_data <- reactiveVal(NULL)
   observeEvent(input$preprocess_btn, {
-    print("EXECUTED")
+    #print("EXECUTED")
     req(data(), input$target_var)
     df <- data()
     # Handle missing values
@@ -298,10 +298,10 @@ server <- function(input, output, session) {
   
   # Train Models
   observeEvent(input$train_btn, {
-    print("EXECUTED")
+    #print("EXECUTED")
     req(preprocessed_data(), input$models)
     df <- preprocessed_data()
-    print(df)
+    #print(df)
     target <- input$target_var
     models <- list()
     results <- data.frame(Model = character(), Accuracy = numeric(), Precision = numeric(),
@@ -350,7 +350,7 @@ server <- function(input, output, session) {
         }
       }, rownames = TRUE, colnames = TRUE)
       
-      print(str(cm))
+      #print(str(cm))
       
       roc_obj <- roc(as.numeric(testData[[target]]), prob_positive)
       results <- rbind(results, data.frame(
@@ -364,7 +364,7 @@ server <- function(input, output, session) {
         AUC = roc_obj$auc
       ))
       
-      print(cm$byClass)
+      #print(cm$byClass)
       output$byclass_results <- renderTable(data.frame(Class = rownames(cm$table), cm$byClass))
       
       conf_matrix <- cm
@@ -414,16 +414,23 @@ server <- function(input, output, session) {
     
     # ROC Plot
     output$roc_plot <- renderPlotly({
+      req(input$target_var, input$ref_class, data())
+      df <- data()
+      target_classes <- unique(df[[input$target_var]])
+      index <- which(target_classes == input$ref_class)
+      
+      
       roc_data <- data.frame()
       for(model in input$models) {
         fit <- models[[model]]
-        if ("prob" %in% fit$control$classProbs) {
-          probs <- predict(fit, testData, type = "prob")
-          prob_positive <- probs[,2]
-        } else {
-          prob_positive <- as.numeric(predict(fit, testData))
-        }
-        pred <- prediction(prob_positive, as.numeric(testData[[target]]))
+
+        prob_positive <- as.numeric(predict(fit, testData))
+        prob_positive <- ifelse(prob_positive != index, 0, prob_positive)
+        #print(prob_positive)
+        target <- as.numeric(testData[[target]])
+        print(target)
+        target <- ifelse(target != index, 0, target)
+        pred <- prediction(prob_positive, target)
         perf <- performance(pred, "tpr", "fpr")
         roc_df <- data.frame(FPR = perf@x.values[[1]], TPR = perf@y.values[[1]], Model = model)
         roc_data <- rbind(roc_data, roc_df)
