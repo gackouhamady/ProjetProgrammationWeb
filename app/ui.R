@@ -160,7 +160,8 @@ ui <- dashboardPage(
         fluidRow(
           box(
             title = "Model Evaluation", status = "primary", solidHeader = TRUE, width = 12,
-            DTOutput("model_results"),
+            valueBoxOutput("acc", width = 4),
+            valueBoxOutput("AUC", width = 4),
             tableOutput("byclass_results"),
             plotlyOutput("roc_plot"),
             verbatimTextOutput("feature_importance")

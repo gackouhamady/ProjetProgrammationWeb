@@ -352,17 +352,24 @@ server <- function(input, output, session) {
       
       #print(str(cm))
       
-      roc_obj <- roc(as.numeric(testData[[target]]), prob_positive)
-      results <- rbind(results, data.frame(
-        Model = model,
-        Accuracy = cm$overall['Accuracy'],
-        Kappa = cm$overall['Kappa'],
-        AccuracyLower = cm$overall['AccuracyLower'],
-        AccuracyUpper = cm$overall['AccuracyUpper'],
-        AccuracyNull = cm$overall['AccuracyNull'],
-        AccuracyPValue = cm$overall['AccuracyPValue'],
-        AUC = roc_obj$auc
-      ))
+      # roc_obj <- roc(as.numeric(testData[[target]]), prob_positive)
+      # results <- rbind(results, data.frame(
+      #   Model = model,
+      #   Accuracy = cm$overall['Accuracy'],
+      #   Kappa = cm$overall['Kappa'],
+      #   AccuracyLower = cm$overall['AccuracyLower'],
+      #   AccuracyUpper = cm$overall['AccuracyUpper'],
+      #   AccuracyNull = cm$overall['AccuracyNull'],
+      #   AccuracyPValue = cm$overall['AccuracyPValue'],
+      #   AUC = roc_obj$auc
+      # ))
+      
+      output$acc <- renderValueBox({valueBox(
+        format(cm$overall['Accuracy'], digits = 4),
+        "Accuracy",
+        icon = icon("chart-line"),
+        color = "aqua"
+      )})
       
       #print(cm$byClass)
       output$byclass_results <- renderTable(data.frame(Class = rownames(cm$table), cm$byClass))
@@ -407,12 +414,8 @@ server <- function(input, output, session) {
       
     }
     
-    # Display Results
-    output$model_results <- renderDT({
-      datatable(results)
-    })
-    
     # ROC Plot
+    
     output$roc_plot <- renderPlotly({
       req(input$target_var, input$ref_class, data())
       df <- data()
@@ -431,6 +434,18 @@ server <- function(input, output, session) {
         print(target)
         target <- ifelse(target != index, 0, target)
         pred <- prediction(prob_positive, target)
+        
+        #print(str(performance(pred, measure = "auc")))
+        
+        
+        output$AUC <- renderValueBox({valueBox(
+          format(performance(pred, measure = "auc")@y.values[[1]], digits = 4),
+          "AUC",
+          icon = icon("chart-line"),
+          color = "aqua"
+        )})
+      
+      
         perf <- performance(pred, "tpr", "fpr")
         roc_df <- data.frame(FPR = perf@x.values[[1]], TPR = perf@y.values[[1]], Model = model)
         roc_data <- rbind(roc_data, roc_df)
