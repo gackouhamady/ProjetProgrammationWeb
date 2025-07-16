@@ -1,5 +1,21 @@
 # Data Exploration and Modeling App
 
+[![R](https://img.shields.io/badge/R-4.2+-blue.svg)](https://www.r-project.org/)
+[![Shiny](https://img.shields.io/badge/Shiny-1.7.4-green.svg)](https://shiny.rstudio.com/)
+[![caret](https://img.shields.io/badge/caret-compatible-orange.svg)](https://topepo.github.io/caret/)
+[![ggplot2](https://img.shields.io/badge/ggplot2-compatible-purple.svg)](https://ggplot2.tidyverse.org/)
+[![dplyr](https://img.shields.io/badge/dplyr-compatible-lightblue.svg)](https://dplyr.tidyverse.org/)
+[![License: Open](https://img.shields.io/badge/license-Open-lightgrey.svg)](#)
+
+- [Data Exploration and Modeling App](#data-exploration-and-modeling-app)
+  - [Contexte du projet](#contexte-du-projet)
+  - [Cas d'étude présenté](#cas-détude-présenté)
+    - [1. Préparation des données](#1-préparation-des-données)
+    - [2. Problème de déséquilibre des classes](#2-problème-de-déséquilibre-des-classes)
+  - [Analyse Exploratoire](#analyse-exploratoire)
+  - [Modélisation et comparaison de modèles](#modélisation-et-comparaison-de-modèles)
+  - [Technologies utilisées](#technologies-utilisées)
+
 ## Contexte du projet
 Ce projet a été réalisé en binôme . Il consiste en la création et le déploiement d'une application web R Shiny, permettant :
 
